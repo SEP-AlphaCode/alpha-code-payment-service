@@ -40,6 +40,6 @@ public class LicenseKey {
     @Column(name = "status", nullable = false)
     private Integer status;
 
-    @OneToMany(mappedBy = "license_key_addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "license_key", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<LicenseKeyAddon> licenseKeyAddons;
 }

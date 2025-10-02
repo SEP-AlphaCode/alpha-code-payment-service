@@ -37,6 +37,6 @@ public class Addon extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "license_key_addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<LicenseKeyAddon> licenseKeyAddons;
 }
