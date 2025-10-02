@@ -31,8 +31,8 @@ public class LicenseKey {
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false)
+    private Integer price;
 
     @Column(name = "purchase_date", nullable = false)
     private LocalDateTime purchaseDate;

@@ -7,7 +7,6 @@ import lombok.experimental.SuperBuilder;
 import site.alphacode.alphacodepaymentservice.base.BaseEntityDto;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -16,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentDto extends BaseEntityDto implements Serializable {
     private UUID id;
-    private BigDecimal amount;
+    private Integer amount;
     private Integer category;
     private String paymentMethod;
     private UUID accountId;

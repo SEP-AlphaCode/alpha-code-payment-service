@@ -27,14 +27,14 @@ public class Invoice extends BaseEntity {
     @Column(name = "payment_id", columnDefinition = "uuid", nullable = false)
     private UUID paymentId;
 
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
+    @Column(name = "total_amount", nullable = false)
+    private Integer totalAmount;
 
-    @Column(name = "tax_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal taxAmount;
+    @Column(name = "tax_amount", nullable = false)
+    private Integer taxAmount;
 
-    @Column(name = "tax_rate", nullable = false, precision = 5, scale = 2)
-    private BigDecimal taxRate;
+    @Column(name = "tax_rate", nullable = false)
+    private Integer taxRate;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id", referencedColumnName = "id", insertable = false, updatable = false)

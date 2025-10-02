@@ -24,7 +24,7 @@ public class KeyPriceServiceImplement implements KeyPriceService {
     @Override
     @Transactional
     @CacheEvict(value = "key_price", allEntries = true)
-    public KeyPriceDto createKeyPrice(BigDecimal price) {
+    public KeyPriceDto createKeyPrice(Integer price) {
         if(keyPriceRepository.count() > 0) {
             throw new IllegalStateException("Key price đã tồn tại. Không thể tạo mới.");
         }
@@ -40,7 +40,7 @@ public class KeyPriceServiceImplement implements KeyPriceService {
     @Override
     @Transactional
     @CacheEvict(value = "key_price", allEntries = true)
-    public KeyPriceDto updateKeyPrice(UUID id, BigDecimal price) {
+    public KeyPriceDto updateKeyPrice(UUID id, Integer price) {
         KeyPrice keyPrice = keyPriceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Key price không tồn tại."));
 

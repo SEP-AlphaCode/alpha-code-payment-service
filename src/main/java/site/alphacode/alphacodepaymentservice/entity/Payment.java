@@ -24,14 +24,20 @@ public class Payment extends BaseEntity {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    @Column(name = "amount", nullable = false)
+    private Integer amount;
 
     @Column(name = "category", nullable = false)
     private Integer category;
 
     @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
+
+    @Column(name = "order_code", unique = true, nullable = false)
+    private Long orderCode;
+
+    @Column(name = "note")
+    private String note;
 
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;

@@ -37,5 +37,14 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
+grpc:
+  client:
+    alpha-course-service:
+      address: static://${GRPC_COURSE_SERVICE_BASE_URL}:${GRPC_COURSE_SERVICE_PORT}
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
+
 server:
   forward-headers-strategy: native

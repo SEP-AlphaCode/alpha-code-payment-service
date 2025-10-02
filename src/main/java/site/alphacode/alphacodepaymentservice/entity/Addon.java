@@ -28,8 +28,8 @@ public class Addon extends BaseEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false)
+    private Integer price;
 
     @Column(name = "category", nullable = false, length = 50)
     private String category;
