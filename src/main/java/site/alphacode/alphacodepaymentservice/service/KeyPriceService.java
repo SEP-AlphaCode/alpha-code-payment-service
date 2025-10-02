@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface KeyPriceService {
     KeyPriceDto getKeyPrice();
-    KeyPriceDto createKeyPrice(BigDecimal price);
-    KeyPriceDto updateKeyPrice(UUID id, BigDecimal price);
+    KeyPriceDto createKeyPrice(Integer price);
+    KeyPriceDto updateKeyPrice(UUID id, Integer price);
     void deleteKeyPrice(UUID id);
 }

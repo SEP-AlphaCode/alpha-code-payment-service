@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class KeyPriceDto implements Serializable {
     private UUID id;
-    private BigDecimal price;
+    private Integer price;
     private LocalDateTime lastUpdated;
     private LocalDateTime createdDate;
 }

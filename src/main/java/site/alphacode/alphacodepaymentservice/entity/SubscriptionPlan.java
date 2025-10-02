@@ -30,8 +30,8 @@ public class SubscriptionPlan extends BaseEntity {
     @Column(name = "description", columnDefinition = "text")
     private String description;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false)
+    private Integer price;
 
     @Column(name = "billing_cycle", nullable = false)
     private Integer billingCycle; // in months

@@ -28,8 +28,8 @@ public class Addon extends BaseEntity {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false)
+    private Integer price;
 
     @Column(name = "category", nullable = false, length = 50)
     private String category;
@@ -37,6 +37,6 @@ public class Addon extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "license_key_addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<LicenseKeyAddon> licenseKeyAddons;
 }

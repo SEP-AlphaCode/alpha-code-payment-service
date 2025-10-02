@@ -27,14 +27,14 @@ public class KeyPriceController {
     @PostMapping()
     @Operation(summary = "Create key price")
     @PreAuthorize("hasAuthority('ROLE_Admin')")
-    public KeyPriceDto createKeyPrice(BigDecimal price) {
+    public KeyPriceDto createKeyPrice(Integer price) {
         return keyPriceService.createKeyPrice(price);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update key price")
     @PreAuthorize("hasAuthority('ROLE_Admin')")
-    public KeyPriceDto updateKeyPrice(@PathVariable UUID id, BigDecimal price) {
+    public KeyPriceDto updateKeyPrice(@PathVariable UUID id, Integer price) {
         return keyPriceService.updateKeyPrice(id, price);
     }
 

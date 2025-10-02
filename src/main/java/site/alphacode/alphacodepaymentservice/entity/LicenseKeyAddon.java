@@ -30,7 +30,7 @@ public class LicenseKeyAddon extends BaseEntity {
     private UUID addonId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "addon_id", insertable = false, updatable = false)
+    @JoinColumn(name = "addon_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Addon addon;
 
     @ManyToOne(fetch = FetchType.LAZY)
