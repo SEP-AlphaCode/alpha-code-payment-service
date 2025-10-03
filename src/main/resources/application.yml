@@ -43,6 +43,13 @@ spring:
     password: ${SPRING_RABBITMQ_PASSWORD}
     publisher-confirm-type: correlated
 
+    listener:
+      simple:
+        concurrency: 2          # số thread consumer
+        max-concurrency: 5
+        acknowledge-mode: auto
+
+
 
 grpc:
   client:
