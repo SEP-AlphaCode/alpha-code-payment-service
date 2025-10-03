@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.*;
@@ -31,5 +32,10 @@ public class PaymentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PostMapping("/payos/get-embedded-link")
+    public CheckoutResponseData getEmbeddedLink(@RequestBody CreatePayment createPayment) throws Exception {
+         return paymentService.createPayOSEmbeddedLink(createPayment);
     }
 }
