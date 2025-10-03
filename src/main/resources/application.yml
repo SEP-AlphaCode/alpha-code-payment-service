@@ -22,7 +22,6 @@ logging:
       springdoc: INFO
       springframework: INFO
       io: INFO
-    org.springframework.amqp: DEBUG
 
 spring:
   devtools:
