@@ -53,12 +53,14 @@ public class PaymentServiceImplement implements PaymentService {
             case "course":
                 category = 1;
                 var courseInfo = courseServiceClient.getCourseInformation(createPayment.getCourseId().toString());
-                serviceName = (courseInfo.getName() == null || courseInfo.getName().isEmpty()) ? "Khóa học" : courseInfo.getName();
+                courseInfo.getName();
+                serviceName = courseInfo.getName().isEmpty() ? "Khóa học" : courseInfo.getName();
                 break;
             case "bundle":
                 category = 2;
                 var bundleInfo = courseServiceClient.getBundleInformation(createPayment.getBundleId().toString());
-                serviceName = (bundleInfo.getName() == null || bundleInfo.getName().isEmpty()) ? "Gói học" : bundleInfo.getName();
+                bundleInfo.getName();
+                serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 break;
             case "addon":
                 category = 3;
