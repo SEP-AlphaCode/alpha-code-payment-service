@@ -14,6 +14,9 @@ import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.CheckoutResponseData;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,53 +28,64 @@ public class PaymentServiceImplement implements PaymentService {
     private final CourseServiceClient courseServiceClient;
 
     public CheckoutResponseData createPayOSEmbeddedLink(CreatePayment createPayment) throws Exception {
-        // 1. Kiểm tra chỉ có đúng 1 loại dịch vụ được chọn
-        int nonNullCount = 0;
-        String serviceName = null;
-        Integer category = null;
 
-        if (createPayment.getCourseId() != null) {
-            nonNullCount++;
-            category = 1; // Course
-            serviceName = courseServiceClient.getCourseInformation(createPayment.getCourseId().toString()).getName().isEmpty() ? "Khóa học" : courseServiceClient.getCourseInformation(createPayment.getCourseId().toString()).getName();
+        // --- 1. Kiểm tra chỉ chọn 1 loại ---
+        Map<String, Object> typeMap = new LinkedHashMap<>();
+        typeMap.put("course", createPayment.getCourseId());
+        typeMap.put("bundle", createPayment.getBundleId());
+        typeMap.put("addon", createPayment.getAddonId());
+        typeMap.put("subscription", createPayment.getSubscriptionId());
+
+        List<String> selected = typeMap.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        if (selected.size() != 1) {
+            throw new IllegalArgumentException("Phải chọn đúng 1 loại dịch vụ: course, bundle, addon hoặc subscription");
         }
 
-        if (createPayment.getBundleId() != null) {
-            nonNullCount++;
-            category = 2; // Bundle
-            serviceName = courseServiceClient.getBundleInformation(createPayment.getBundleId().toString()).getName().isEmpty() ? "Gói học" : courseServiceClient.getBundleInformation(createPayment.getBundleId().toString()).getName();
+        String chosenType = selected.get(0);
+        String serviceName;
+        Integer category;
+
+        switch (chosenType) {
+            case "course":
+                category = 1;
+                var courseInfo = courseServiceClient.getCourseInformation(createPayment.getCourseId().toString());
+                serviceName = (courseInfo.getName() == null || courseInfo.getName().isEmpty()) ? "Khóa học" : courseInfo.getName();
+                break;
+            case "bundle":
+                category = 2;
+                var bundleInfo = courseServiceClient.getBundleInformation(createPayment.getBundleId().toString());
+                serviceName = (bundleInfo.getName() == null || bundleInfo.getName().isEmpty()) ? "Gói học" : bundleInfo.getName();
+                break;
+            case "addon":
+                category = 3;
+                serviceName = addonRepository.findById(createPayment.getAddonId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"))
+                        .getName();
+                break;
+            case "subscription":
+                category = 4;
+                serviceName = subscriptionRepository.findById(createPayment.getSubscriptionId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"))
+                        .getSubscriptionPlan().getName();
+                break;
+            default:
+                throw new IllegalStateException("Loại dịch vụ không hợp lệ");
         }
 
-        if (createPayment.getAddonId() != null) {
-            nonNullCount++;
-            category = 3; // Addon
-            serviceName = addonRepository.findById(createPayment.getAddonId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"))
-                    .getName();
-        }
-
-        if (createPayment.getSubscriptionId() != null) {
-            nonNullCount++;
-            category = 4; // Subscription
-            serviceName = subscriptionRepository.findById(createPayment.getSubscriptionId())
-                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"))
-                    .getSubscriptionPlan().getName();
-        }
-
-        if (nonNullCount != 1) {
-            throw new IllegalArgumentException("Phải chọn đúng 1 loại dịch vụ (subscription, addon, bundle hoặc course)");
-        }
-
-        // 2. Sinh orderCode (dùng làm khóa duy nhất với PayOS và DB)
+        // --- 2. Tạo orderCode ---
         long orderCode = System.currentTimeMillis() / 1000;
 
-        // 3. Tạo Payment trong DB với trạng thái "pending"
+        // --- 3. Lưu Payment ---
         Payment payment = new Payment();
         payment.setOrderCode(orderCode);
         payment.setAmount(createPayment.getAmount());
         payment.setCategory(category);
-        payment.setPaymentMethod("PAYOS"); // hoặc mapping từ request
-        payment.setStatus(1); // 1 = pending
+        payment.setPaymentMethod("PAYOS");
+        payment.setStatus(1); // pending
         payment.setCreatedDate(LocalDateTime.now());
         payment.setLastUpdated(null);
 
@@ -83,14 +97,15 @@ public class PaymentServiceImplement implements PaymentService {
 
         paymentRepository.save(payment);
 
-        // 4. Tạo request cho PayOS
-        PayOSEmbeddedLinkRequest payOSEmbeddedLinkRequest = new PayOSEmbeddedLinkRequest();
-        payOSEmbeddedLinkRequest.setPrice(createPayment.getAmount());
-        payOSEmbeddedLinkRequest.setName(serviceName);
+        // --- 4. Tạo request PayOS ---
+        PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
+        payRequest.setPrice(createPayment.getAmount());
+        payRequest.setName(serviceName);
 
-        // 5. Gọi PayOS để lấy embedded link
-        return payOSService.createEmbeddedLink(payOSEmbeddedLinkRequest, orderCode);
+        // --- 5. Gọi PayOS ---
+        return payOSService.createEmbeddedLink(payRequest, orderCode);
     }
+
 
 
 }

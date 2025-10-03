@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
+import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import vn.payos.PayOS;
@@ -33,6 +34,7 @@ public class PayOSServiceImplement implements PayOSService {
     final PayOS payOS = new PayOS(clientId, apiKey, checkSumKey);
 
     private final PaymentRepository paymentRepository;
+    private final PaymentProducer paymentProducer;
 
     @Transactional
     public CheckoutResponseData createEmbeddedLink(PayOSEmbeddedLinkRequest payOSEmbeddedLinkRequest, Long orderCode) throws Exception {
@@ -72,14 +74,27 @@ public class PayOSServiceImplement implements PayOSService {
         // 2. Mapping trạng thái dựa vào data.code
         if ("00".equals(webhookData.getCode())) {
             payment.setStatus(2); // PAID
+
+            // --- 2a. Xác định loại dịch vụ để gửi queue đúng ---
+            if (payment.getCourseId() != null) {
+                paymentProducer.sendCourseCreated(payment.getCourseId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getBundleId() != null) {
+                paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getAddonId() != null) {
+                paymentProducer.sendAddonCreated(payment.getAddonId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getSubscriptionId() != null) {
+                paymentProducer.sendSubscriptionCreated(payment.getSubscriptionId().toString(), payment.getAccountId().toString(), orderCode);
+            }
+
         } else {
             payment.setStatus(3); // FAILED/CANCELLED
         }
 
         // 3. Lưu mô tả lỗi/thành công để debug
-        payment.setNote(webhookData.getDesc()); // thêm field note vào entity nếu cần
+        payment.setNote(webhookData.getDesc());
         payment.setLastUpdated(LocalDateTime.now());
 
         paymentRepository.save(payment);
     }
+
 }
