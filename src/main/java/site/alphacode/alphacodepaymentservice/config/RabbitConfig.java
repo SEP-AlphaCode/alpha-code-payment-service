@@ -14,7 +14,9 @@ public class RabbitConfig {
 
     @Bean
     public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
-        return new RabbitAdmin(connectionFactory);
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        admin.setAutoStartup(true); // chắc chắn declare queue/exchange/binding khi context start
+        return admin;
     }
 
     @Bean
