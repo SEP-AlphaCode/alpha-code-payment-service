@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
-import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/payments")
@@ -32,6 +33,23 @@ public class PaymentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PostMapping("/github")
+    public ResponseEntity<String> handleGitHubWebhook(@RequestBody Map<String, Object> payload,
+                                                      @RequestHeader("X-GitHub-Event") String event,
+                                                      @RequestHeader(value = "X-Hub-Signature-256", required = false) String signature) {
+        System.out.println("GitHub event: " + event);
+        System.out.println("GitHub signature: " + signature);
+        System.out.println("Payload: " + payload);
+
+        // TODO: xử lý payload nếu muốn
+        // Ví dụ chỉ log khi event = "push"
+        if ("push".equals(event)) {
+            System.out.println("Push event received!");
+        }
+
+        return ResponseEntity.ok("Received"); // trả 200 cho GitHub
     }
 
     @PostMapping("/payos/get-embedded-link")
