@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,30 +48,33 @@ public class PaymentServiceImplement implements PaymentService {
 
         String chosenType = selected.get(0);
         String serviceName;
-        Integer category;
+        int category;
+        UUID serviceId; // để kiểm tra Payment pending
 
         switch (chosenType) {
             case "course":
                 category = 1;
-                var courseInfo = courseServiceClient.getCourseInformation(createPayment.getCourseId().toString());
-                courseInfo.getName();
+                serviceId = createPayment.getCourseId();
+                var courseInfo = courseServiceClient.getCourseInformation(serviceId.toString());
                 serviceName = courseInfo.getName().isEmpty() ? "Khóa học" : courseInfo.getName();
                 break;
             case "bundle":
                 category = 2;
-                var bundleInfo = courseServiceClient.getBundleInformation(createPayment.getBundleId().toString());
-                bundleInfo.getName();
+                serviceId = createPayment.getBundleId();
+                var bundleInfo = courseServiceClient.getBundleInformation(serviceId.toString());
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 break;
             case "addon":
                 category = 3;
-                serviceName = addonRepository.findById(createPayment.getAddonId())
+                serviceId = createPayment.getAddonId();
+                serviceName = addonRepository.findById(serviceId)
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"))
                         .getName();
                 break;
             case "subscription":
                 category = 4;
-                serviceName = subscriptionRepository.findById(createPayment.getSubscriptionId())
+                serviceId = createPayment.getSubscriptionId();
+                serviceName = subscriptionRepository.findById(serviceId)
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"))
                         .getSubscriptionPlan().getName();
                 break;
@@ -78,10 +82,22 @@ public class PaymentServiceImplement implements PaymentService {
                 throw new IllegalStateException("Loại dịch vụ không hợp lệ");
         }
 
-        // --- 2. Tạo orderCode ---
+        // --- 1b. Kiểm tra Payment pending ---
+        var existingPayment = paymentRepository
+                .findFirstPendingByAccountAndService(createPayment.getAccountId(), category, serviceId,1);
+
+        if (existingPayment.isPresent()) {
+            // Payment đang pending, trả về link cũ
+            PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
+            payRequest.setPrice(existingPayment.get().getAmount());
+            payRequest.setName(serviceName);
+            return payOSService.createEmbeddedLink(payRequest, existingPayment.get().getOrderCode());
+        }
+
+        // --- 2. Tạo orderCode mới ---
         long orderCode = System.currentTimeMillis() / 1000;
 
-        // --- 3. Lưu Payment ---
+        // --- 3. Tạo Payment mới ---
         Payment payment = new Payment();
         payment.setOrderCode(orderCode);
         payment.setAmount(createPayment.getAmount());
@@ -97,8 +113,6 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setAddonId(createPayment.getAddonId());
         payment.setSubscriptionId(createPayment.getSubscriptionId());
 
-
-
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
         payRequest.setPrice(createPayment.getAmount());
@@ -108,7 +122,7 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setPaymentUrl(payData.getCheckoutUrl());
         paymentRepository.save(payment);
 
-        // --- 5. Gọi PayOS ---
+        // --- 5. Trả về dữ liệu PayOS ---
         return payData;
     }
 
