@@ -23,10 +23,8 @@ public class PaymentController {
     private final PayOSService payOSService;
 
     @PostMapping("/payos/verify-payment-webhook-data")
-    public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> payload) {
+    public WebhookData handleWebhook(@RequestBody Map<String, Object> payload) throws Exception {
         System.out.println("Received PayOS webhook: " + payload);
-
-        try {
             // Lấy data từ payload
             Map<String, Object> dataMap = (Map<String, Object>) payload.get("data");
 
@@ -64,13 +62,9 @@ public class PaymentController {
                     .build();
 
             // Gọi service xử lý
-            payOSService.processWebhook(webhook);
+            var webHook = payOSService.processWebhook(webhook);
 
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+            return webHook;
     }
 
 
