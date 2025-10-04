@@ -14,13 +14,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreatePayment {
-    @NotNull(message = "Số tiền là bắt buộc")
-    @Min(value = 1, message = "Số tiền phải lớn hơn 0")
-    private Integer amount;
-
-    @NotNull(message = "Danh mục là bắt buộc")
-    private Integer category;
-
     @NotNull(message = "ID người dùng là bắt buộc")
     private UUID accountId;
 

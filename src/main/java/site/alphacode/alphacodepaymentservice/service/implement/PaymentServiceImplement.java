@@ -50,6 +50,7 @@ public class PaymentServiceImplement implements PaymentService {
         String serviceName;
         int category;
         UUID serviceId; // để kiểm tra Payment pending
+        int amount;
 
         switch (chosenType) {
             case "course":
@@ -57,26 +58,30 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceId = createPayment.getCourseId();
                 var courseInfo = courseServiceClient.getCourseInformation(serviceId.toString());
                 serviceName = courseInfo.getName().isEmpty() ? "Khóa học" : courseInfo.getName();
+                amount = courseInfo.getPrice();
                 break;
             case "bundle":
                 category = 2;
                 serviceId = createPayment.getBundleId();
                 var bundleInfo = courseServiceClient.getBundleInformation(serviceId.toString());
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
+                amount = bundleInfo.getPrice() - bundleInfo.getDiscountPrice();
                 break;
             case "addon":
                 category = 3;
                 serviceId = createPayment.getAddonId();
-                serviceName = addonRepository.findById(serviceId)
-                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"))
-                        .getName();
+                var addonInfo = addonRepository.findById(serviceId)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"));
+                serviceName = addonInfo.getName();
+                amount = addonInfo.getPrice();
                 break;
             case "subscription":
                 category = 4;
                 serviceId = createPayment.getSubscriptionId();
-                serviceName = subscriptionRepository.findById(serviceId)
-                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"))
-                        .getSubscriptionPlan().getName();
+                var subscriptionInfo = subscriptionRepository.findById(serviceId)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"));
+                serviceName = subscriptionInfo.getSubscriptionPlan().getName();
+                amount = subscriptionInfo.getSubscriptionPlan().getPrice();
                 break;
             default:
                 throw new IllegalStateException("Loại dịch vụ không hợp lệ");
@@ -100,7 +105,7 @@ public class PaymentServiceImplement implements PaymentService {
         // --- 3. Tạo Payment mới ---
         Payment payment = new Payment();
         payment.setOrderCode(orderCode);
-        payment.setAmount(createPayment.getAmount());
+        payment.setAmount(amount);
         payment.setCategory(category);
         payment.setPaymentMethod("PAYOS");
         payment.setStatus(1); // pending
@@ -115,7 +120,7 @@ public class PaymentServiceImplement implements PaymentService {
 
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
-        payRequest.setPrice(createPayment.getAmount());
+        payRequest.setPrice(amount);
         payRequest.setName(serviceName);
 
         var payData = payOSService.createEmbeddedLink(payRequest, orderCode);
