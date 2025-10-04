@@ -110,7 +110,7 @@ public class PaymentServiceImplement implements PaymentService {
             existingPayment.get().setLastUpdated(LocalDateTime.now());
             existingPayment.get().setPaymentUrl(paymentUrl.getCheckoutUrl());
             existingPayment.get().setAmount(amount);
-            
+
             paymentRepository.save(existingPayment.get());
 
             return paymentUrl;

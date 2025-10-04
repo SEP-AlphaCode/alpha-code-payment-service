@@ -21,7 +21,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final PayOSService payOSService;
 
-    @PostMapping("/payos/verifyPaymentWebhookData")
+    @PostMapping("/payos/verify-payment-webhook-data")
     @Operation(summary = "Handle PayOS webhook")
     public ResponseEntity<Void> handleWebhook(@RequestBody Webhook webhook) {
         try {
