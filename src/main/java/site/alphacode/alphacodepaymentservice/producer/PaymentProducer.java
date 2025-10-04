@@ -1,5 +1,6 @@
 package site.alphacode.alphacodepaymentservice.producer;
 
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -10,15 +11,17 @@ import java.util.Map;
 public class PaymentProducer implements CommandLineRunner {
 
     private final RabbitTemplate rabbitTemplate;
+    private final RabbitAdmin rabbitAdmin;
 
     @Override
     public void run(String... args) {
         System.out.println("RabbitMQ connected: " + rabbitTemplate.getConnectionFactory().getHost());
-        rabbitTemplate.convertAndSend("payment.exchange", "course.create.queue", "Hello test message");
+        rabbitAdmin.initialize();
     }
 
-    public PaymentProducer(RabbitTemplate rabbitTemplate) {
+    public PaymentProducer(RabbitTemplate rabbitTemplate, RabbitAdmin rabbitAdmin) {
         this.rabbitTemplate = rabbitTemplate;
+        this.rabbitAdmin = rabbitAdmin;
     }
 
     // --- Course ---
