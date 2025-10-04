@@ -103,35 +103,37 @@ public class PayOSServiceImplement implements PayOSService {
         if (webhookData == null) {
             throw new IllegalArgumentException("Webhook không hợp lệ hoặc chữ ký sai");
         }
+
+        Long orderCode = webhookData.getOrderCode();
+        Payment payment = paymentRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Payment với orderCode: " + orderCode));
+
+        // 2. Mapping trạng thái dựa vào data.code
+        if ("00".equals(webhookData.getCode())) {
+            payment.setStatus(2); // PAID
+
+            // --- 2a. Xác định loại dịch vụ để gửi queue đúng ---
+            if (payment.getCourseId() != null) {
+                paymentProducer.sendCourseCreated(payment.getCourseId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getBundleId() != null) {
+                paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getAddonId() != null) {
+                paymentProducer.sendAddonCreated(payment.getAddonId().toString(), payment.getAccountId().toString(), orderCode);
+            } else if (payment.getSubscriptionId() != null) {
+                paymentProducer.sendSubscriptionCreated(payment.getSubscriptionId().toString(), payment.getAccountId().toString(), orderCode);
+            }
+
+        } else {
+            payment.setStatus(3); // FAILED/CANCELLED
+        }
+
+        // 3. Lưu mô tả lỗi/thành công để debug
+        payment.setNote(webhookData.getDesc());
+        payment.setLastUpdated(LocalDateTime.now());
+
+        paymentRepository.save(payment);
+
         return  webhookData;
-//        Long orderCode = webhookData.getOrderCode();
-//        Payment payment = paymentRepository.findByOrderCode(orderCode)
-//                .orElseThrow(() -> new RuntimeException("Không tìm thấy Payment với orderCode: " + orderCode));
-//
-//        // 2. Mapping trạng thái dựa vào data.code
-//        if ("00".equals(webhookData.getCode())) {
-//            payment.setStatus(2); // PAID
-//
-//            // --- 2a. Xác định loại dịch vụ để gửi queue đúng ---
-//            if (payment.getCourseId() != null) {
-//                paymentProducer.sendCourseCreated(payment.getCourseId().toString(), payment.getAccountId().toString(), orderCode);
-//            } else if (payment.getBundleId() != null) {
-//                paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
-//            } else if (payment.getAddonId() != null) {
-//                paymentProducer.sendAddonCreated(payment.getAddonId().toString(), payment.getAccountId().toString(), orderCode);
-//            } else if (payment.getSubscriptionId() != null) {
-//                paymentProducer.sendSubscriptionCreated(payment.getSubscriptionId().toString(), payment.getAccountId().toString(), orderCode);
-//            }
-//
-//        } else {
-//            payment.setStatus(3); // FAILED/CANCELLED
-//        }
-//
-//        // 3. Lưu mô tả lỗi/thành công để debug
-//        payment.setNote(webhookData.getDesc());
-//        payment.setLastUpdated(LocalDateTime.now());
-//
-//        paymentRepository.save(payment);
     }
 
 }
