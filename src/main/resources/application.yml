@@ -42,12 +42,13 @@ spring:
     username: ${SPRING_RABBITMQ_USERNAME}
     password: ${SPRING_RABBITMQ_PASSWORD}
     publisher-confirm-type: correlated
-
+    virtual-host: /
     listener:
       simple:
         concurrency: 2          # số thread consumer
         max-concurrency: 5
         acknowledge-mode: auto
+    dynamic: true
 
 
 
