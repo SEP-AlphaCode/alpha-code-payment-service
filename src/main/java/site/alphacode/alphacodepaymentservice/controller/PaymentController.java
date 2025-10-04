@@ -13,9 +13,9 @@ import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.*;
 
 @RestController
-@RequestMapping("/api/v1/license-keys")
+@RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
-@Tag(name = "License Keys", description = "License Key management APIs")
+@Tag(name = "Payments", description = "Payment management APIs")
 public class PaymentController {
 
     private final PaymentService paymentService;
