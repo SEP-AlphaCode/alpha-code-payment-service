@@ -13,6 +13,7 @@ import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import vn.payos.PayOS;
 import vn.payos.type.*;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 
 
@@ -31,7 +32,12 @@ public class PayOSServiceImplement implements PayOSService {
     @Value("${web-base-url}")
     private String webUrl;
 
-    final PayOS payOS = new PayOS(clientId, apiKey, checkSumKey);
+    private PayOS payOS;
+
+    @PostConstruct
+    public void init() {
+        this.payOS = new PayOS(clientId, apiKey, checkSumKey);
+    }
 
     private final PaymentRepository paymentRepository;
     private final PaymentProducer paymentProducer;
