@@ -39,6 +39,9 @@ public class Payment extends BaseEntity {
     @Column(name = "note")
     private String note;
 
+    @Column(name = "paymentUrl", nullable = false)
+    private String paymentUrl;
+
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;
 

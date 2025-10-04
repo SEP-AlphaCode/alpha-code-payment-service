@@ -97,15 +97,19 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setAddonId(createPayment.getAddonId());
         payment.setSubscriptionId(createPayment.getSubscriptionId());
 
-        paymentRepository.save(payment);
+
 
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
         payRequest.setPrice(createPayment.getAmount());
         payRequest.setName(serviceName);
 
+        var payData = payOSService.createEmbeddedLink(payRequest, orderCode);
+        payment.setPaymentUrl(payData.getCheckoutUrl());
+        paymentRepository.save(payment);
+
         // --- 5. Gọi PayOS ---
-        return payOSService.createEmbeddedLink(payRequest, orderCode);
+        return payData;
     }
 
 
