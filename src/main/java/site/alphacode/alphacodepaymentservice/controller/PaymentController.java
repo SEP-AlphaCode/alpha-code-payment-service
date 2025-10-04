@@ -23,19 +23,58 @@ public class PaymentController {
     private final PayOSService payOSService;
 
     @PostMapping("/payos/verify-payment-webhook-data")
-    @Operation(summary = "Handle PayOS webhook")
     public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> payload) {
         System.out.println("Received PayOS webhook: " + payload);
 
         try {
-            payOSService.processWebhook((Webhook) payload); // processWebhook hỗ trợ Map
+            // Lấy data từ payload
+            Map<String, Object> dataMap = (Map<String, Object>) payload.get("data");
+
+            // Tạo WebhookData
+            WebhookData webhookData = WebhookData.builder()
+                    .orderCode(Long.parseLong(dataMap.get("orderCode").toString()))
+                    .amount(Integer.parseInt(dataMap.get("amount").toString()))
+                    .description((String) dataMap.get("description"))
+                    .accountNumber((String) dataMap.get("accountNumber"))
+                    .reference((String) dataMap.get("reference"))
+                    .transactionDateTime((String) dataMap.get("transactionDateTime"))
+                    .currency((String) dataMap.get("currency"))
+                    .paymentLinkId((String) dataMap.get("paymentLinkId"))
+                    .code((String) dataMap.get("code"))
+                    .desc((String) dataMap.get("desc"))
+                    .counterAccountBankId((String) dataMap.get("counterAccountBankId"))
+                    .counterAccountBankName((String) dataMap.get("counterAccountBankName"))
+                    .counterAccountName((String) dataMap.get("counterAccountName"))
+                    .counterAccountNumber((String) dataMap.get("counterAccountNumber"))
+                    .virtualAccountName((String) dataMap.get("virtualAccountName"))
+                    .virtualAccountNumber((String) dataMap.get("virtualAccountNumber"))
+                    .build();
+
+            // Xác định success dựa vào code hoặc desc
+            Boolean success = "00".equals(payload.get("code")) ||
+                    "success".equalsIgnoreCase((String) payload.get("desc"));
+
+            // Tạo Webhook
+            Webhook webhook = Webhook.builder()
+                    .code((String) payload.get("code"))
+                    .desc((String) payload.get("desc"))
+                    .success(success)
+                    .data(webhookData)
+                    .signature((String) payload.get("signature"))
+                    .build();
+
+            // Gọi service xử lý
+            payOSService.processWebhook(webhook);
+
             return ResponseEntity.ok().build();
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
 
 
     @PostMapping("/github")

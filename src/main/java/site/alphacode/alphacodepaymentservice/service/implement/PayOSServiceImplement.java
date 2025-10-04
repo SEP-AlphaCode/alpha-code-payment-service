@@ -11,7 +11,6 @@ import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundExceptio
 import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
-import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.PayOS;
 import vn.payos.type.*;
 
