@@ -43,7 +43,7 @@ public class OpenAPIConfig {
     @Bean
     public GroupedOpenApi groupedOpenApi() {
         return GroupedOpenApi.builder()
-                .group("course-service")
+                .group("payment-service")
                 .packagesToScan("site.alphacode.alphacodepaymentservice.controller")
                 //.pathsToMatch("/api/**")
                 .build();
