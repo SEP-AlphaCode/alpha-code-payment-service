@@ -24,9 +24,11 @@ public class PaymentController {
 
     @PostMapping("/payos/verify-payment-webhook-data")
     @Operation(summary = "Handle PayOS webhook")
-    public ResponseEntity<Void> handleWebhook(@RequestBody Webhook webhook) {
+    public ResponseEntity<Void> handleWebhook(@RequestBody Map<String, Object> payload) {
+        System.out.println("Received PayOS webhook: " + payload);
+
         try {
-            payOSService.processWebhook(webhook);
+            payOSService.processWebhook((Webhook) payload); // processWebhook hỗ trợ Map
             return ResponseEntity.ok().build();
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -34,6 +36,7 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @PostMapping("/github")
     public ResponseEntity<String> handleGitHubWebhook(@RequestBody Map<String, Object> payload,
