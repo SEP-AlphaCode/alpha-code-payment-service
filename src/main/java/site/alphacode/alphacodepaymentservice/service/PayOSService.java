@@ -9,6 +9,6 @@ public interface PayOSService {
     CheckoutResponseData createEmbeddedLink(PayOSEmbeddedLinkRequest payOSEmbeddedLinkRequest,Long orderCode) throws Exception;
     void processWebhook(Webhook webhook) throws Exception;
     PaymentLinkData getPaymentLinkInformation(Long orderCode) throws Exception;
-    PaymentLinkData cancelPaymentLink(Long orderCode) throws Exception;
+    PaymentLinkData cancelPaymentLink(Long orderCode, String cancelReason) throws Exception;
     String confirmWebhook(String webHookUrl) throws  Exception;
 }

@@ -96,7 +96,7 @@ public class PaymentServiceImplement implements PaymentService {
 
         if (existingPayment.isPresent()) {
             //Hủy Payment cũ
-            payOSService.cancelPaymentLink(existingPayment.get().getOrderCode());
+            payOSService.cancelPaymentLink(existingPayment.get().getOrderCode(),"Hủy do tạo link mới");
 
 
             // Payment đang pending, trả về link cũ

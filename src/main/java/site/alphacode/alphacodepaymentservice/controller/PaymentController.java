@@ -47,8 +47,8 @@ public class PaymentController {
 
     @PutMapping("/payos/cancel-link-payment/{orderCode}")
     @Operation(summary = "Cancel PayOS payment link by order code")
-    public PaymentLinkData cancelLinkPayment(@PathVariable Long orderCode) throws Exception {
-        return payOSService.cancelPaymentLink(orderCode);
+    public PaymentLinkData cancelLinkPayment(@PathVariable Long orderCode, String cancelReason) throws Exception {
+        return payOSService.cancelPaymentLink(orderCode, cancelReason);
     }
 
     @GetMapping("/payos/confirm-webhook/{webhookUrl}")

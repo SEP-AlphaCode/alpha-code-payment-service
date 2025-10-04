@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
+import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundException;
 import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
+import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.PayOS;
 import vn.payos.type.*;
 
@@ -72,8 +74,21 @@ public class PayOSServiceImplement implements PayOSService {
     }
 
     @Override
-    public PaymentLinkData cancelPaymentLink(Long orderCode) throws Exception {
-        return payOS.cancelPaymentLink(orderCode, "Hủy theo yêu cầu khách hàng");
+    public PaymentLinkData cancelPaymentLink(Long orderCode, String cancelReason) throws Exception {
+        var payment = paymentRepository.findByOrderCode(orderCode);
+        if (payment.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy Payment với orderCode: " + orderCode);
+        }
+
+        if (payment.get().getStatus() == 2) { // 2 = PAID
+            throw new IllegalStateException("Không thể hủy Payment đã được thanh toán");
+        }
+
+        payment.get().setStatus(3); // 3 = CANCELLED
+        payment.get().setLastUpdated(LocalDateTime.now());
+        paymentRepository.save(payment.get());
+
+        return payOS.cancelPaymentLink(orderCode, cancelReason);
     }
 
     @Override
