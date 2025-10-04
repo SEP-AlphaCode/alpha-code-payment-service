@@ -21,7 +21,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final PayOSService payOSService;
 
-    @PostMapping("/payos/webhook")
+    @PostMapping("/payos/verifyPaymentWebhookData")
     @Operation(summary = "Handle PayOS webhook")
     public ResponseEntity<Void> handleWebhook(@RequestBody Webhook webhook) {
         try {
@@ -49,5 +49,11 @@ public class PaymentController {
     @Operation(summary = "Cancel PayOS payment link by order code")
     public PaymentLinkData cancelLinkPayment(@PathVariable Long orderCode) throws Exception {
         return payOSService.cancelPaymentLink(orderCode);
+    }
+
+    @GetMapping("/payos/confirm-webhook/{webhookUrl}")
+    @Operation(summary = "Confirm PayOS webhook URL")
+    public void confirmWebhook(@PathVariable String webhookUrl) throws Exception {
+        payOSService.confirmWebhook(webhookUrl);
     }
 }
