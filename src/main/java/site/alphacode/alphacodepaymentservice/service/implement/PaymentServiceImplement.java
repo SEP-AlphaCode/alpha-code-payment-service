@@ -91,16 +91,30 @@ public class PaymentServiceImplement implements PaymentService {
         var existingPayment = paymentRepository
                 .findFirstPendingByAccountAndService(createPayment.getAccountId(), category, serviceId,1);
 
-        if (existingPayment.isPresent()) {
-            // Payment đang pending, trả về link cũ
-            PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
-            payRequest.setPrice(existingPayment.get().getAmount());
-            payRequest.setName(serviceName);
-            return payOSService.createEmbeddedLink(payRequest, existingPayment.get().getOrderCode());
-        }
-
         // --- 2. Tạo orderCode mới ---
         long orderCode = System.currentTimeMillis() / 1000;
+
+        if (existingPayment.isPresent()) {
+            //Hủy Payment cũ
+            payOSService.cancelPaymentLink(existingPayment.get().getOrderCode());
+
+
+            // Payment đang pending, trả về link cũ
+            PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
+            payRequest.setPrice(amount);
+            payRequest.setName(serviceName);
+
+            var paymentUrl = payOSService.createEmbeddedLink(payRequest, orderCode);
+
+            existingPayment.get().setOrderCode(paymentUrl.getOrderCode());
+            existingPayment.get().setLastUpdated(LocalDateTime.now());
+            existingPayment.get().setPaymentUrl(paymentUrl.getCheckoutUrl());
+            existingPayment.get().setAmount(amount);
+            
+            paymentRepository.save(existingPayment.get());
+
+            return paymentUrl;
+        }
 
         // --- 3. Tạo Payment mới ---
         Payment payment = new Payment();
