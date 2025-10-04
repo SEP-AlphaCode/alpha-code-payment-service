@@ -51,9 +51,9 @@ public class PaymentController {
         return payOSService.cancelPaymentLink(orderCode, cancelReason);
     }
 
-    @GetMapping("/payos/confirm-webhook/{webhookUrl}")
+    @PostMapping("/payos/confirm-webhook")
     @Operation(summary = "Confirm PayOS webhook URL")
-    public void confirmWebhook(@PathVariable String webhookUrl) throws Exception {
+    public void confirmWebhook(String webhookUrl) throws Exception {
         payOSService.confirmWebhook(webhookUrl);
     }
 }
