@@ -14,6 +14,7 @@ public class PaymentProducer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("RabbitMQ connected: " + rabbitTemplate.getConnectionFactory().getHost());
+        rabbitTemplate.convertAndSend("payment.exchange", "course.create.queue", "Hello test message");
     }
 
     public PaymentProducer(RabbitTemplate rabbitTemplate) {
