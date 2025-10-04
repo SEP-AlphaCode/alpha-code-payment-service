@@ -42,6 +42,7 @@ public class PayOSServiceImplement implements PayOSService {
     private final PaymentRepository paymentRepository;
     private final PaymentProducer paymentProducer;
 
+    @Override
     @Transactional
     public CheckoutResponseData createEmbeddedLink(PayOSEmbeddedLinkRequest payOSEmbeddedLinkRequest, Long orderCode) throws Exception {
 
@@ -65,6 +66,22 @@ public class PayOSServiceImplement implements PayOSService {
         return payOS.createPaymentLink(paymentData);
     }
 
+    @Override
+    public PaymentLinkData getPaymentLinkInformation(Long orderCode) throws Exception {
+        return payOS.getPaymentLinkInformation(orderCode);
+    }
+
+    @Override
+    public PaymentLinkData cancelPaymentLink(Long orderCode) throws Exception {
+        return payOS.cancelPaymentLink(orderCode, "Hủy theo yêu cầu khách hàng");
+    }
+
+    @Override
+    public String confirmWebhook(String webHookUrl) throws  Exception {
+        return payOS.confirmWebhook(webHookUrl);
+    }
+
+    @Override
     @Transactional
     public void processWebhook(Webhook webhook) throws Exception {
         // 1. Verify chữ ký
