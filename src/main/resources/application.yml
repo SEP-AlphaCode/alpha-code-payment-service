@@ -55,7 +55,7 @@ spring:
 grpc:
   client:
     alpha-course-service:
-      address: static://${GRPC_COURSE_SERVICE_BASE_URL}:${GRPC_COURSE_SERVICE_PORT}
+      address: static://${GRPC_COURSE_SERVICE_BASE_URL:localhost}:${GRPC_COURSE_SERVICE_PORT:50052}
       enableKeepAlive: true
       keepAliveWithoutCalls: true
       negotiationType: plaintext

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
@@ -67,33 +68,14 @@ public class PaymentController {
             return webHook;
     }
 
-
-
-
-
-    @PostMapping("/github")
-    public ResponseEntity<String> handleGitHubWebhook(@RequestBody Map<String, Object> payload,
-                                                      @RequestHeader("X-GitHub-Event") String event,
-                                                      @RequestHeader(value = "X-Hub-Signature-256", required = false) String signature) {
-        System.out.println("GitHub event: " + event);
-        System.out.println("GitHub signature: " + signature);
-        System.out.println("Payload: " + payload);
-
-        // TODO: xử lý payload nếu muốn
-        // Ví dụ chỉ log khi event = "push"
-        if ("push".equals(event)) {
-            System.out.println("Push event received!");
-        }
-
-        return ResponseEntity.ok("Received"); // trả 200 cho GitHub
-    }
-
     @PostMapping("/payos/get-embedded-link")
+    @PreAuthorize("hasAuthority('ROLE_User')")
     public CheckoutResponseData getEmbeddedLink(@RequestBody CreatePayment createPayment) throws Exception {
          return paymentService.createPayOSEmbeddedLink(createPayment);
     }
 
     @GetMapping("/payos/get-payment-link-information/{orderCode}")
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff', 'ROLE_User')")
     @Operation(summary = "Get PayOS payment link information by order code")
     public PaymentLinkData getPaymentLinkInformation(@PathVariable Long orderCode) throws Exception {
         return payOSService.getPaymentLinkInformation(orderCode);
@@ -103,11 +85,5 @@ public class PaymentController {
     @Operation(summary = "Cancel PayOS payment link by order code")
     public PaymentLinkData cancelLinkPayment(@PathVariable Long orderCode, String cancelReason) throws Exception {
         return payOSService.cancelPaymentLink(orderCode, cancelReason);
-    }
-
-    @PostMapping("/payos/confirm-webhook")
-    @Operation(summary = "Confirm PayOS webhook URL")
-    public void confirmWebhook(String webhookUrl) throws Exception {
-        payOSService.confirmWebhook(webhookUrl);
     }
 }

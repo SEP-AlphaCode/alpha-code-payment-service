@@ -15,7 +15,6 @@ public class SecurityWhitelist {
             "/",
             "/api/v1/auth/**",
             "/api/v1/payments/payos/verify-payment-webhook-data",
-            "/api/v1/payments/github"
     };
 
     // Permit GET only
