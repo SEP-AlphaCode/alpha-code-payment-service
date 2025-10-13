@@ -4,12 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundException;
 import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
+import site.alphacode.alphacodepaymentservice.service.AddonService;
+import site.alphacode.alphacodepaymentservice.service.LicenseKeyAddonService;
+import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import vn.payos.PayOS;
 import vn.payos.type.*;
@@ -21,6 +25,9 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class PayOSServiceImplement implements PayOSService {
+    private final LicenseKeyService licenseKeyService;
+    private final AddonService addonService;
+    private final LicenseKeyAddonService licenseKeyAddonService;
     @Value("${payos.client.id}")
     private String clientId;
 
@@ -118,9 +125,23 @@ public class PayOSServiceImplement implements PayOSService {
             } else if (payment.getBundleId() != null) {
                 paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
             } else if (payment.getAddonId() != null) {
-                paymentProducer.sendAddonCreated(payment.getAddonId().toString(), payment.getAccountId().toString(), orderCode);
+                // Find license key by accountId
+                var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
+                if (licenseKey == null) {
+                    throw new RuntimeException("Không tìm thấy LicenseKey cho accountId: " + payment.getAccountId());
+                }
+                // Create LicenseKeyAddon
+                CreateLincenseKeyAddon createLincenseKeyAddon = new CreateLincenseKeyAddon();
+                createLincenseKeyAddon.setLicenseKeyId(licenseKey.getId());
+                createLincenseKeyAddon.setAddonId(payment.getAddonId());
+                licenseKeyAddonService.create(createLincenseKeyAddon);
+
             } else if (payment.getSubscriptionId() != null) {
-                paymentProducer.sendSubscriptionCreated(payment.getSubscriptionId().toString(), payment.getAccountId().toString(), orderCode);
+                var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
+                if (licenseKey == null) {
+                    throw new RuntimeException("Không tìm thấy LicenseKey cho accountId: " + payment.getAccountId());
+                }
+                licenseKeyService.createLicense(payment.getAccountId());
             }
 
         } else {

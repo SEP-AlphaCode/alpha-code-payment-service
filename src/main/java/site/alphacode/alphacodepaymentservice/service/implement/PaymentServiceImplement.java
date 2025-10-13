@@ -9,6 +9,7 @@ import site.alphacode.alphacodepaymentservice.grpc.client.CourseServiceClient;
 import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.repository.SubscriptionRepository;
+import site.alphacode.alphacodepaymentservice.service.KeyPriceService;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.CheckoutResponseData;
@@ -27,6 +28,7 @@ public class PaymentServiceImplement implements PaymentService {
     private final SubscriptionRepository subscriptionRepository;
     private final AddonRepository addonRepository;
     private final CourseServiceClient courseServiceClient;
+    private final KeyPriceService keyPriceService;
 
     public CheckoutResponseData createPayOSEmbeddedLink(CreatePayment createPayment) throws Exception {
 
@@ -36,6 +38,7 @@ public class PaymentServiceImplement implements PaymentService {
         typeMap.put("bundle", createPayment.getBundleId());
         typeMap.put("addon", createPayment.getAddonId());
         typeMap.put("subscription", createPayment.getSubscriptionId());
+        typeMap.put("key", createPayment.getKeyId());
 
         List<String> selected = typeMap.entrySet().stream()
                 .filter(e -> e.getValue() != null)
@@ -43,10 +46,10 @@ public class PaymentServiceImplement implements PaymentService {
                 .toList();
 
         if (selected.size() != 1) {
-            throw new IllegalArgumentException("Phải chọn đúng 1 loại dịch vụ: course, bundle, addon hoặc subscription");
+            throw new IllegalArgumentException("Phải chọn đúng 1 loại dịch vụ: course, bundle, addon, key hoặc subscription");
         }
 
-        String chosenType = selected.get(0);
+        String chosenType = selected.getFirst();
         String serviceName;
         int category;
         UUID serviceId; // để kiểm tra Payment pending
@@ -83,8 +86,15 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceName = subscriptionInfo.getSubscriptionPlan().getName();
                 amount = subscriptionInfo.getSubscriptionPlan().getPrice();
                 break;
+            case "key":
+                category = 5;
+                serviceId = createPayment.getKeyId();
+                var keyPrice = keyPriceService.getKeyPrice();
+                serviceName = "Mua license key";
+                amount = keyPrice.getPrice();
+                break;
             default:
-                throw new IllegalStateException("Loại dịch vụ không hợp lệ");
+                throw new IllegalArgumentException("Loại dịch vụ không hợp lệ");
         }
 
         // --- 1b. Kiểm tra Payment pending ---

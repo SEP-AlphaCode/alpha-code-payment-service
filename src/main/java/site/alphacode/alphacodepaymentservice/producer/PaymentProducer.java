@@ -44,26 +44,6 @@ public class PaymentProducer implements CommandLineRunner {
         rabbitTemplate.convertAndSend("payment.exchange", "bundle.create.queue", message);
     }
 
-    // --- Addon ---
-    public void sendAddonCreated(String addonId, String accountId, Long orderCode) {
-        Map<String, Object> message = Map.of(
-                "addonId", addonId,
-                "accountId", accountId,
-                "orderCode", orderCode
-        );
-        rabbitTemplate.convertAndSend("payment.exchange", "addon.create.queue", message);
-    }
-
-    // --- Subscription ---
-    public void sendSubscriptionCreated(String subscriptionId, String accountId, Long orderCode) {
-        Map<String, Object> message = Map.of(
-                "subscriptionId", subscriptionId,
-                "accountId", accountId,
-                "orderCode", orderCode
-        );
-        rabbitTemplate.convertAndSend("payment.exchange", "subscription.create.queue", message);
-    }
-
     // --- Email ---
     public void sendEmail(String accountId, Long orderCode) {
         Map<String, Object> message = Map.of(

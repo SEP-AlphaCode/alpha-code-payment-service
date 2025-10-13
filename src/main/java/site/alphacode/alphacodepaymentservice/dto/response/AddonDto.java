@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import site.alphacode.alphacodepaymentservice.base.BaseEntityDto;
 import site.alphacode.alphacodepaymentservice.enums.AddonEnum;
-import site.alphacode.alphacodepaymentservice.enums.PaymentEnum;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -16,23 +15,18 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentDto extends BaseEntityDto implements Serializable {
+public class AddonDto extends BaseEntityDto implements Serializable  {
     private UUID id;
-    private Integer amount;
+    private String name;
+    private Integer price;
     private Integer category;
-    private String paymentMethod;
-    private UUID accountId;
-    private UUID addonId;
-    private UUID courseId;
-    private UUID bundleId;
-    private UUID subscriptionId;
-    private UUID keyId;
+    private String description;
     @JsonProperty(value = "statusText")
     public String getStatusText() {
-        return PaymentEnum.fromCode(this.getStatus());
+        return AddonEnum.fromCode(this.getStatus());
     }
     @JsonProperty(value = "categoryText")
     public String getCategoryText() {
-        return PaymentEnum.fromCode(this.getCategory());
+        return AddonEnum.fromCode(this.getCategory());
     }
 }

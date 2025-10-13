@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -24,4 +23,6 @@ public class CreatePayment {
     private UUID courseId;
 
     private UUID subscriptionId;
+
+    private UUID keyId;
 }

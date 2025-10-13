@@ -20,6 +20,7 @@ public class PaymentMapper {
                 .courseId(payment.getCourseId())
                 .bundleId(payment.getBundleId())
                 .subscriptionId(payment.getSubscriptionId())
+                .keyId(payment.getKeyId())
                 .createdDate(payment.getCreatedDate())
                 .lastUpdated(payment.getLastUpdated())
                 .build();

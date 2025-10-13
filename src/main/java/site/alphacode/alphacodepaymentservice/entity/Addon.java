@@ -31,8 +31,8 @@ public class Addon extends BaseEntity {
     @Column(name = "price", nullable = false)
     private Integer price;
 
-    @Column(name = "category", nullable = false, length = 50)
-    private String category;
+    @Column(name = "category", nullable = false)
+    private Integer category;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
