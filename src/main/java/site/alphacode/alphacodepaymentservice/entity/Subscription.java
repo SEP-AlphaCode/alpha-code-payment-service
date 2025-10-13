@@ -30,9 +30,6 @@ public class Subscription extends BaseEntity {
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;
 
-    @Column(name = "addon_id", nullable = false,columnDefinition = "uuid")
-    private UUID addonId;
-
     @Column(name = "remaining_quota", nullable = false)
     private Integer remainingQuota;
 
@@ -41,10 +38,6 @@ public class Subscription extends BaseEntity {
 
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "addon_id", insertable = false, updatable = false)
-    private Addon addon;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", referencedColumnName = "id", insertable = false, updatable = false)

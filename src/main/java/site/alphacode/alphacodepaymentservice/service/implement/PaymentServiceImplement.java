@@ -8,6 +8,7 @@ import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.grpc.client.CourseServiceClient;
 import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
+import site.alphacode.alphacodepaymentservice.repository.SubscriptionPlanRepository;
 import site.alphacode.alphacodepaymentservice.repository.SubscriptionRepository;
 import site.alphacode.alphacodepaymentservice.service.KeyPriceService;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
@@ -29,6 +30,7 @@ public class PaymentServiceImplement implements PaymentService {
     private final AddonRepository addonRepository;
     private final CourseServiceClient courseServiceClient;
     private final KeyPriceService keyPriceService;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
 
     public CheckoutResponseData createPayOSEmbeddedLink(CreatePayment createPayment) throws Exception {
 
@@ -37,7 +39,7 @@ public class PaymentServiceImplement implements PaymentService {
         typeMap.put("course", createPayment.getCourseId());
         typeMap.put("bundle", createPayment.getBundleId());
         typeMap.put("addon", createPayment.getAddonId());
-        typeMap.put("subscription", createPayment.getSubscriptionId());
+        typeMap.put("subscription_plan", createPayment.getPlanId());
         typeMap.put("key", createPayment.getKeyId());
 
         List<String> selected = typeMap.entrySet().stream()
@@ -78,13 +80,13 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceName = addonInfo.getName();
                 amount = addonInfo.getPrice();
                 break;
-            case "subscription":
+            case "subscription_plan":
                 category = 4;
-                serviceId = createPayment.getSubscriptionId();
-                var subscriptionInfo = subscriptionRepository.findById(serviceId)
-                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription"));
-                serviceName = subscriptionInfo.getSubscriptionPlan().getName();
-                amount = subscriptionInfo.getSubscriptionPlan().getPrice();
+                serviceId = createPayment.getPlanId();
+                var subscriptionInfo = subscriptionPlanRepository.findById(serviceId)
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription plan"));
+                serviceName = subscriptionInfo.getName();
+                amount = subscriptionInfo.getPrice();
                 break;
             case "key":
                 category = 5;
@@ -140,7 +142,7 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setCourseId(createPayment.getCourseId());
         payment.setBundleId(createPayment.getBundleId());
         payment.setAddonId(createPayment.getAddonId());
-        payment.setSubscriptionId(createPayment.getSubscriptionId());
+        payment.setPlanId(createPayment.getPlanId());
 
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();

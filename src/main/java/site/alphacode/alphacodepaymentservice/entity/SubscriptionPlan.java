@@ -39,6 +39,6 @@ public class SubscriptionPlan extends BaseEntity {
     @Column(name = "quota")
     private Integer quota; // e.g., number of courses or features included
 
-    @Column(name = "duration_day")
-    private Integer durationDay; // Duration of the subscription in day
+//    @Column(name = "duration_day")
+//    private Integer durationDay; // Duration of the subscription in day
 }

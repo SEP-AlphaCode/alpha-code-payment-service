@@ -22,7 +22,7 @@ public class CreatePayment {
 
     private UUID courseId;
 
-    private UUID subscriptionId;
+    private UUID planId;
 
     private UUID keyId;
 }

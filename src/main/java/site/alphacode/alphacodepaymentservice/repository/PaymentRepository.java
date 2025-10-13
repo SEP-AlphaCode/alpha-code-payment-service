@@ -23,7 +23,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
         (:category = 1 AND p.courseId = :serviceId) OR
         (:category = 2 AND p.bundleId = :serviceId) OR
         (:category = 3 AND p.addonId = :serviceId) OR
-        (:category = 4 AND p.subscriptionId = :serviceId)
+        (:category = 4 AND p.planId = :serviceId)
       )
     ORDER BY p.createdDate DESC
 """)

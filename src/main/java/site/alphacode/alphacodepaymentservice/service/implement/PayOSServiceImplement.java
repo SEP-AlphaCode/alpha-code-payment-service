@@ -11,10 +11,7 @@ import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundException;
 import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
-import site.alphacode.alphacodepaymentservice.service.AddonService;
-import site.alphacode.alphacodepaymentservice.service.LicenseKeyAddonService;
-import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
-import site.alphacode.alphacodepaymentservice.service.PayOSService;
+import site.alphacode.alphacodepaymentservice.service.*;
 import vn.payos.PayOS;
 import vn.payos.type.*;
 
@@ -28,6 +25,7 @@ public class PayOSServiceImplement implements PayOSService {
     private final LicenseKeyService licenseKeyService;
     private final AddonService addonService;
     private final LicenseKeyAddonService licenseKeyAddonService;
+    private final SubscriptionService subscriptionService;
     @Value("${payos.client.id}")
     private String clientId;
 
@@ -136,12 +134,8 @@ public class PayOSServiceImplement implements PayOSService {
                 createLincenseKeyAddon.setAddonId(payment.getAddonId());
                 licenseKeyAddonService.create(createLincenseKeyAddon);
 
-            } else if (payment.getSubscriptionId() != null) {
-                var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
-                if (licenseKey == null) {
-                    throw new RuntimeException("Không tìm thấy LicenseKey cho accountId: " + payment.getAccountId());
-                }
-                licenseKeyService.createLicense(payment.getAccountId());
+            } else if (payment.getPlanId() != null) {
+                subscriptionService.createOrUpdateSubscription(payment.getAccountId(), payment.getPlanId());
             }
 
         } else {

@@ -54,8 +54,8 @@ public class Payment extends BaseEntity {
     @Column(name = "course_id", columnDefinition = "uuid")
     private UUID courseId;
 
-    @Column(name = "subscription_id", columnDefinition = "uuid")
-    private UUID subscriptionId;
+    @Column(name = "plan_id", columnDefinition = "uuid")
+    private UUID planId;
 
     @Column(name = "key_id", columnDefinition = "uuid")
     private UUID keyId;
