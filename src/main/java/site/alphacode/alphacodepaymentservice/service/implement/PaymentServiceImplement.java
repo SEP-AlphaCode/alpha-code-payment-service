@@ -5,11 +5,10 @@ import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
 import site.alphacode.alphacodepaymentservice.entity.Payment;
+import site.alphacode.alphacodepaymentservice.grpc.client.AccountCourseServiceClient;
+import site.alphacode.alphacodepaymentservice.grpc.client.CourseBundleServiceClient;
 import site.alphacode.alphacodepaymentservice.grpc.client.CourseServiceClient;
-import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
-import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
-import site.alphacode.alphacodepaymentservice.repository.SubscriptionPlanRepository;
-import site.alphacode.alphacodepaymentservice.repository.SubscriptionRepository;
+import site.alphacode.alphacodepaymentservice.repository.*;
 import site.alphacode.alphacodepaymentservice.service.KeyPriceService;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import site.alphacode.alphacodepaymentservice.service.PaymentService;
@@ -26,11 +25,14 @@ import java.util.UUID;
 public class PaymentServiceImplement implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final PayOSService payOSService;
-    private final SubscriptionRepository subscriptionRepository;
     private final AddonRepository addonRepository;
     private final CourseServiceClient courseServiceClient;
     private final KeyPriceService keyPriceService;
     private final SubscriptionPlanRepository subscriptionPlanRepository;
+    private final LicenseKeyAddonRepository licenseKeyAddonRepository;
+    private final LicenseKeyRepository licenseKeyRepository;
+    private final AccountCourseServiceClient accountCourseServiceClient;
+    private final CourseBundleServiceClient courseBundleServiceClient;
 
     public CheckoutResponseData createPayOSEmbeddedLink(CreatePayment createPayment) throws Exception {
 
@@ -97,6 +99,50 @@ public class PaymentServiceImplement implements PaymentService {
                 break;
             default:
                 throw new IllegalArgumentException("Loại dịch vụ không hợp lệ");
+        }
+
+        // --- Kiểm tra quyền sở hữu (ownership) ---
+        switch (chosenType) {
+            case "course":
+                if (accountCourseServiceClient.hasOwnedCourse(createPayment.getAccountId(), serviceId)) {
+                    throw new IllegalArgumentException("Bạn đã sở hữu khóa học này.");
+                }
+                break;
+
+            case "bundle":
+                var courseIdsInBundle = courseBundleServiceClient.getCourseIdsByBundleId(serviceId);
+                var ownedCourseIds = accountCourseServiceClient.getOwnedCoursesInBundle(createPayment.getAccountId(), courseIdsInBundle);
+                if (!ownedCourseIds.isEmpty()) {
+                    throw new IllegalArgumentException("Bạn đã sở hữu một hoặc nhiều khóa học trong gói này, không thể mua bundle.");
+                }
+                break;
+
+            case "addon":
+                // Lấy license key đang hoạt động của tài khoản
+                var licenseKeyOpt = licenseKeyRepository.findByAccountIdAndStatus(createPayment.getAccountId(), 1);
+
+                if (licenseKeyOpt.isEmpty()) {
+                    throw new IllegalArgumentException("Tài khoản chưa có license key hợp lệ, không thể mua addon.");
+                }
+
+                var licenseKey = licenseKeyOpt.get();
+
+                // Kiểm tra addon đã được mua chưa
+                boolean alreadyOwned = licenseKeyAddonRepository.existsByLicenseKeyIdAndAddonId(licenseKey.getId(), serviceId);
+                if (alreadyOwned) {
+                    throw new IllegalArgumentException("Bạn đã sở hữu addon này rồi.");
+                }
+
+                break;
+
+            case "key":
+                if (licenseKeyRepository.findByAccountIdAndStatus(createPayment.getAccountId(), 1).isPresent()) {
+                    throw new IllegalArgumentException("Tài khoản này đã có license key hợp lệ.");
+                }
+                break;
+
+            default:
+                break; // Subscription để xử lý sau
         }
 
         // --- 1b. Kiểm tra Payment pending ---

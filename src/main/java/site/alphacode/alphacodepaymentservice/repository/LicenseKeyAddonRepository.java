@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface LicenseKeyAddonRepository extends JpaRepository<LicenseKeyAddon, UUID> {
+    boolean existsByLicenseKeyIdAndAddonId(UUID licenseKeyId, UUID addonId);
 }
