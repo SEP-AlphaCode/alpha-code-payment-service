@@ -9,8 +9,11 @@ import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedL
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundException;
+import site.alphacode.alphacodepaymentservice.grpc.client.CourseServiceClient;
 import site.alphacode.alphacodepaymentservice.producer.PaymentProducer;
+import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
+import site.alphacode.alphacodepaymentservice.repository.SubscriptionPlanRepository;
 import site.alphacode.alphacodepaymentservice.service.*;
 import vn.payos.PayOS;
 import vn.payos.type.*;
@@ -26,6 +29,9 @@ public class PayOSServiceImplement implements PayOSService {
     private final AddonService addonService;
     private final LicenseKeyAddonService licenseKeyAddonService;
     private final SubscriptionService subscriptionService;
+    private final CourseServiceClient courseServiceClient;
+    private final AddonRepository addonRepository;
+    private final SubscriptionPlanRepository subscriptionPlanRepository;
     @Value("${payos.client.id}")
     private String clientId;
 
@@ -117,12 +123,23 @@ public class PayOSServiceImplement implements PayOSService {
         if ("00".equals(webhookData.getCode())) {
             payment.setStatus(2); // PAID
 
+            String serviceName;
+
             // --- 2a. Xác định loại dịch vụ để gửi queue đúng ---
             if (payment.getCourseId() != null) {
+                var courseInfo = courseServiceClient.getCourseInformation(payment.getCourseId().toString());
+                serviceName = courseInfo.getName().isEmpty() ? "Khóa học" : courseInfo.getName();
                 paymentProducer.sendCourseCreated(payment.getCourseId().toString(), payment.getAccountId().toString(), orderCode);
+                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getBundleId() != null) {
+                var bundleInfo = courseServiceClient.getBundleInformation(payment.getBundleId().toString());
+                serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
+                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getAddonId() != null) {
+                var addonInfo = addonRepository.findById(payment.getAddonId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"));
+                serviceName = addonInfo.getName();
                 // Find license key by accountId
                 var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
                 if (licenseKey == null) {
@@ -133,9 +150,13 @@ public class PayOSServiceImplement implements PayOSService {
                 createLincenseKeyAddon.setLicenseKeyId(licenseKey.getId());
                 createLincenseKeyAddon.setAddonId(payment.getAddonId());
                 licenseKeyAddonService.create(createLincenseKeyAddon);
-
+                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getPlanId() != null) {
+                var subscriptionInfo = subscriptionPlanRepository.findById(payment.getPlanId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription plan"));
+                serviceName = subscriptionInfo.getName();
                 subscriptionService.createOrUpdateSubscription(payment.getAccountId(), payment.getPlanId());
+                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             }
 
         } else {

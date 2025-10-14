@@ -44,12 +44,14 @@ public class PaymentProducer implements CommandLineRunner {
         rabbitTemplate.convertAndSend("payment.exchange", "bundle.create.queue", message);
     }
 
-    // --- Email ---
-    public void sendEmail(String accountId, Long orderCode) {
+    // --- Notification ---
+    public void sendNotification(String accountId, Long orderCode, String serviceName, Integer price) {
         Map<String, Object> message = Map.of(
                 "accountId", accountId,
-                "orderCode", orderCode
+                "orderCode", orderCode,
+                "serviceName", serviceName,
+                "price", price
         );
-        rabbitTemplate.convertAndSend("payment.exchange", "email.send.queue", message);
+        rabbitTemplate.convertAndSend("payment.exchange", "notification.send.queue", message);
     }
 }
