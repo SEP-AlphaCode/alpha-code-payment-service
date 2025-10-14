@@ -36,7 +36,7 @@ public class SubscriptionPlan extends BaseEntity {
     @Column(name = "billing_cycle", nullable = false)
     private Integer billingCycle; // in months
 
-    @Column(name = "quota")
+    @Column(name = "quota", nullable = false)
     private Integer quota; // e.g., number of courses or features included
 
 //    @Column(name = "duration_day")

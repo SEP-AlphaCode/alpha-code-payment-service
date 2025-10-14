@@ -2,7 +2,6 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import site.alphacode.alphacodepaymentservice.dto.response.SubscriptionDto;
 import site.alphacode.alphacodepaymentservice.entity.Subscription;
 import site.alphacode.alphacodepaymentservice.entity.SubscriptionPlan;
 import site.alphacode.alphacodepaymentservice.mapper.SubscriptionMapper;
@@ -20,7 +19,7 @@ public class SubsriptionServiceImplement implements SubscriptionService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final SubscriptionRepository subscriptionRepository;
 
-    public SubscriptionDto createOrUpdateSubscription(UUID accountId, UUID planId) {
+    public void createOrUpdateSubscription(UUID accountId, UUID planId) {
         // 1. Lấy plan
         SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan not found"));
@@ -49,7 +48,7 @@ public class SubsriptionServiceImplement implements SubscriptionService {
         Subscription savedSub = subscriptionRepository.save(newSub);
 
         // 4. Chuyển sang DTO
-        return SubscriptionMapper.toDto(savedSub);
+        SubscriptionMapper.toDto(savedSub);
     }
 
 }
