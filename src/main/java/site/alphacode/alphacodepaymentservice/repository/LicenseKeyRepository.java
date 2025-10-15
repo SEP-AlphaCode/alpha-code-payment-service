@@ -18,5 +18,9 @@ public interface LicenseKeyRepository extends JpaRepository<LicenseKey, UUID> {
 
     // Nếu muốn lấy tất cả key của account (cả active/inactive)
     Optional<LicenseKey> findByAccountId(UUID accountId);
+
+    boolean existsByKey(String key);
+
+    Optional<LicenseKey> findLicenseKeyByKey(String key);
 }
 

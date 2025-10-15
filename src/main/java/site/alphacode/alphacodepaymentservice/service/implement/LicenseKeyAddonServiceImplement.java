@@ -9,14 +9,17 @@ import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincense
 import site.alphacode.alphacodepaymentservice.entity.LicenseKeyAddon;
 import site.alphacode.alphacodepaymentservice.mapper.LicenseKeyAddonMapper;
 import site.alphacode.alphacodepaymentservice.repository.LicenseKeyAddonRepository;
+import site.alphacode.alphacodepaymentservice.repository.LicenseKeyRepository;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyAddonService;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     private final LicenseKeyAddonRepository licenseKeyAddonRepository;
+    private final LicenseKeyRepository licenseKeyRepository;
 
     @Override
     @Transactional
@@ -29,5 +32,12 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
         entity.setCreatedDate(LocalDateTime.now());
         entity = licenseKeyAddonRepository.save(entity);
         return LicenseKeyAddonMapper.toDto(entity);
+    }
+
+    @Override
+    public boolean isActiveAddonForLicenseKey(UUID addonId, String key) {
+        var licenseKey = licenseKeyRepository.findLicenseKeyByKey(key).orElseThrow(() -> new IllegalArgumentException("Key không hợp lệ"));
+        var licenseKeyAddon = licenseKeyAddonRepository.findByAddonIdAndLicenseKeyIdAndStatus(addonId, licenseKey.getId(), 1);
+        return licenseKeyAddon.isPresent();
     }
 }

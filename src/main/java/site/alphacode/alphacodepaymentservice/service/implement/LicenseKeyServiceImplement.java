@@ -26,7 +26,10 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
     @Override
     @CachePut(value = "key", key = "#accountId")
     public String createLicense(UUID accountId) {
-        String key = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        String key;
+        do {
+            key = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        } while (licenseKeyRepository.existsByKey(key));
         var keyPrice = keyPriceService.getKeyPrice();
 
         LicenseKey license = LicenseKey.builder()

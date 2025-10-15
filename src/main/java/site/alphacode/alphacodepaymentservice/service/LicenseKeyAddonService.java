@@ -3,6 +3,9 @@ package site.alphacode.alphacodepaymentservice.service;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyAddonDto;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
 
+import java.util.UUID;
+
 public interface LicenseKeyAddonService {
     LicenseKeyAddonDto create(CreateLincenseKeyAddon createLincenseKeyAddon);
+    boolean isActiveAddonForLicenseKey(UUID addonId, String key);
 }
