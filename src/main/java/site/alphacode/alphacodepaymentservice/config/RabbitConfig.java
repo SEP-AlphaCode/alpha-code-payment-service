@@ -70,15 +70,15 @@ public class RabbitConfig {
         return BindingBuilder.bind(subscriptionQueue).to(paymentExchange).with("subscription.create.queue");
     }
 
-    // --- Email queue ---
+    // --- Notification queue ---
     @Bean
-    public Queue emailQueue() {
-        return new Queue("email.send.queue", true);
+    public Queue notificationQueue() {
+        return new Queue("notification.send.queue", true);
     }
 
     @Bean
-    public Binding bindingEmailQueue(Queue emailQueue, DirectExchange paymentExchange) {
-        return BindingBuilder.bind(emailQueue).to(paymentExchange).with("email.send.queue");
+    public Binding bindingNotificationQueue(Queue notificationQueue, DirectExchange paymentExchange) {
+        return BindingBuilder.bind(notificationQueue).to(paymentExchange).with("notification.send.queue");
     }
 
     // --- JSON Converter (fix lỗi conversion) ---
