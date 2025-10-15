@@ -189,6 +189,7 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setBundleId(createPayment.getBundleId());
         payment.setAddonId(createPayment.getAddonId());
         payment.setPlanId(createPayment.getPlanId());
+        payment.setKeyId(createPayment.getKeyId());
 
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();
