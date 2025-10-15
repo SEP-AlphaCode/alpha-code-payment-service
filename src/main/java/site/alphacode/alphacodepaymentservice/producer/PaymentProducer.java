@@ -1,5 +1,6 @@
 package site.alphacode.alphacodepaymentservice.producer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.CommandLineRunner;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class PaymentProducer implements CommandLineRunner {
 
     private final RabbitTemplate rabbitTemplate;
@@ -52,6 +54,7 @@ public class PaymentProducer implements CommandLineRunner {
                 "serviceName", serviceName,
                 "price", price
         );
+        log.info("Sending notification message: {}", message);
         rabbitTemplate.convertAndSend("payment.exchange", "notification.send.queue", message);
     }
 }
