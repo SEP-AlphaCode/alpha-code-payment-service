@@ -157,6 +157,8 @@ public class PayOSServiceImplement implements PayOSService {
                 serviceName = subscriptionInfo.getName();
                 subscriptionService.createOrUpdateSubscription(payment.getAccountId(), payment.getPlanId());
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
+            } else if (payment.getKeyId() != null) {
+                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), "Mua license key", payment.getAmount());
             }
 
         } else {
