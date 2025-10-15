@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import site.alphacode.alphacodepaymentservice.enums.LicenseKeyEnum;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,7 +15,7 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LicenseKeyDto {
+public class LicenseKeyDto implements Serializable {
     private UUID id;
     private String key;
     private UUID accountId;
