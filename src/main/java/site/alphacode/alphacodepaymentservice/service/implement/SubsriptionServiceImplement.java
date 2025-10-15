@@ -19,36 +19,66 @@ public class SubsriptionServiceImplement implements SubscriptionService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final SubscriptionRepository subscriptionRepository;
 
+    @Override
     public void createOrUpdateSubscription(UUID accountId, UUID planId) {
-        // 1. Lấy plan
+        // Lấy plan mới
         SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan not found"));
 
-        // 2. Kết thúc subscription cũ còn active
+        // Lấy tất cả subscription ACTIVE hiện tại của user
         List<Subscription> currentSubs = subscriptionRepository
                 .findByAccountIdAndStatus(accountId, 1); // 1 = ACTIVE
 
+        // Biến dùng lưu quota dư nếu có
         int leftoverQuota = 0;
+        boolean hasSameMonthly = false;
+
         for (Subscription sub : currentSubs) {
-            leftoverQuota += sub.getRemainingQuota(); // cộng quota dư
-            sub.setStatus(2); // 2 = EXPIRED
-            subscriptionRepository.save(sub);
+            SubscriptionPlan oldPlan = subscriptionPlanRepository.findById(sub.getPlanId())
+                    .orElseThrow(() -> new RuntimeException("Old plan not found"));
+
+            // Nếu cả cũ & mới đều quota-limited, cộng quota
+            if (oldPlan.getBillingCycle() == 0 && plan.getBillingCycle() == 0
+                    && oldPlan.getId().equals(plan.getId())) {
+                leftoverQuota += sub.getRemainingQuota();
+                sub.setStatus(2); // expired cũ
+                subscriptionRepository.save(sub);
+            }
+            // Nếu cả cũ & mới đều monthly/unlimited và cùng loại, gia hạn
+            else if (oldPlan.getBillingCycle() > 0 && plan.getBillingCycle() > 0
+                    && oldPlan.getId().equals(plan.getId())) {
+                // Gia hạn endDate
+                sub.setEndDate(sub.getEndDate().plusMonths(plan.getBillingCycle()));
+                subscriptionRepository.save(sub);
+                hasSameMonthly = true;
+            }
+            // Nếu khác loại hoặc nâng cấp quota → monthly, expire cũ
+            else if (!(oldPlan.getId().equals(plan.getId()) && oldPlan.getBillingCycle() == plan.getBillingCycle())) {
+                sub.setStatus(2); // expired
+                subscriptionRepository.save(sub);
+            }
         }
 
-        // 3. Tạo subscription mới
+        // Nếu đã gia hạn monthly cùng loại, không cần tạo subscription mới
+        if (hasSameMonthly) return;
+
+        // Tạo subscription mới
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endDate = plan.getBillingCycle() > 0 ? now.plusMonths(plan.getBillingCycle()) : null;
+        int remainingQuota = plan.getBillingCycle() == 0 ? plan.getQuota() + leftoverQuota : 0;
+
         Subscription newSub = Subscription.builder()
                 .accountId(accountId)
                 .planId(plan.getId())
-                .remainingQuota(plan.getQuota() + leftoverQuota) // cộng quota dư
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusMonths(plan.getBillingCycle())) // dùng billingCycle
-                .status(1) // 1 = ACTIVE
+                .remainingQuota(remainingQuota)
+                .startDate(now)
+                .endDate(endDate)
+                .status(1) // ACTIVE
                 .build();
 
         Subscription savedSub = subscriptionRepository.save(newSub);
 
-        // 4. Chuyển sang DTO
+        // Chuyển sang DTO nếu cần
         SubscriptionMapper.toDto(savedSub);
     }
-
 }

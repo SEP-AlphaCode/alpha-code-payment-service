@@ -142,7 +142,7 @@ public class PaymentServiceImplement implements PaymentService {
                 break;
 
             default:
-                break; // Subscription để xử lý sau
+                break;
         }
 
         // --- 1b. Kiểm tra Payment pending ---
