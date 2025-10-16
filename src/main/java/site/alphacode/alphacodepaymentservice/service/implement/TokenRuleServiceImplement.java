@@ -32,7 +32,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
     private final TokenRuleRepository tokenRuleRepository;
 
     @Override
-    @Cacheable(value = "token_rule", key = "{#page, #size, #searchTerm}")
+    @Cacheable(value = "token_rules", key = "{#page, #size, #searchTerm}")
     public PagedResult<TokenRuleDto> getAlls(int page, int size, String searchTerm){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
         Page<TokenRule> rules = tokenRuleRepository.findAll(searchTerm, pageable);
@@ -42,7 +42,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "token_rule", allEntries = true)
+    @CacheEvict(value = {"token_rules" , "token_rule"}, allEntries = true)
     public TokenRuleDto createTokenRule(CreateTokenRule createTokenRule) {
         // Kiểm tra xem code đã tồn tại chưa
         if (tokenRuleRepository.existsByCodeAndStatus(createTokenRule.getCode(), 1)) {
@@ -62,7 +62,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "token_rule", allEntries = true)
+    @CacheEvict(value = {"token_rules" , "token_rule"}, allEntries = true)
     public TokenRuleDto updateTokenRule(UUID id, UpdateTokenRule updateTokenRule) {
         TokenRule tokenRule = tokenRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Token rule không tồn tại."));
@@ -84,7 +84,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "token_rule", allEntries = true)
+    @CacheEvict(value = {"token_rules" , "token_rule"}, allEntries = true)
     public TokenRuleDto patch(UUID id, PatchTokenRule patchTokenRule){
         TokenRule tokenRule = tokenRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Token rule không tồn tại."));
@@ -123,7 +123,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "token_rule", allEntries = true)
+    @CacheEvict(value = {"token_rules" , "token_rule"}, allEntries = true)
     public void deleteTokenRule(UUID id) {
         TokenRule tokenRule = tokenRuleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Token rule không tồn tại."));
