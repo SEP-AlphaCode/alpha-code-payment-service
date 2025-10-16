@@ -32,7 +32,7 @@ public class TokenRuleServiceImplement implements TokenRuleService {
     private final TokenRuleRepository tokenRuleRepository;
 
     @Override
-    @Cacheable(value = "token_rule", key = "#searchTerm")
+    @Cacheable(value = "token_rule", key = "{#page, #size, #searchTerm}")
     public PagedResult<TokenRuleDto> getAlls(int page, int size, String searchTerm){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
         Page<TokenRule> rules = tokenRuleRepository.findAll(searchTerm, pageable);
