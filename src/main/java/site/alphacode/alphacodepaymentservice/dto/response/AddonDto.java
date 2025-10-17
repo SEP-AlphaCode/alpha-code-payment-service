@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import site.alphacode.alphacodepaymentservice.base.BaseEntityDto;
-import site.alphacode.alphacodepaymentservice.enums.AddonEnum;
+import site.alphacode.alphacodepaymentservice.enums.AddonCategoryEnum;
+import site.alphacode.alphacodepaymentservice.enums.AddonStatusEnum;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -23,10 +24,10 @@ public class AddonDto extends BaseEntityDto implements Serializable  {
     private String description;
     @JsonProperty(value = "statusText")
     public String getStatusText() {
-        return AddonEnum.fromCode(this.getStatus());
+        return AddonStatusEnum.fromCode(this.getStatus());
     }
     @JsonProperty(value = "categoryText")
     public String getCategoryText() {
-        return AddonEnum.fromCode(this.getCategory());
+        return AddonCategoryEnum.fromCode(this.getCategory());
     }
 }
