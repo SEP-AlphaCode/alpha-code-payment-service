@@ -22,7 +22,6 @@ public class SubscriptionPlanDto extends BaseEntityDto implements Serializable {
     private String description;
     private Integer price;
     private Integer billingCycle; // in months
-    private Integer quota;
     @JsonProperty(value = "statusText")
     public String getStatusText() {
         return SubscriptionPlanEnum.fromCode(this.getStatus());

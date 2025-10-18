@@ -16,7 +16,6 @@ public class SubscriptionPlanMapper {
                 .billingCycle(subscriptionPlan.getBillingCycle())
                 .createdDate(subscriptionPlan.getCreatedDate())
                 .lastUpdated(subscriptionPlan.getLastUpdated())
-                .quota(subscriptionPlan.getQuota())
                 .status(subscriptionPlan.getStatus())
                 .build();
     }

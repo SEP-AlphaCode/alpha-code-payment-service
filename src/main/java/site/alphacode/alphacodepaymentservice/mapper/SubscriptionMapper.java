@@ -12,7 +12,6 @@ public class SubscriptionMapper {
                 .id(subscription.getId())
                 .accountId(subscription.getAccountId())
                 .planId(subscription.getPlanId())
-                .remainingQuota(subscription.getRemainingQuota())
                 .endDate(subscription.getEndDate())
                 .startDate(subscription.getStartDate())
                 .createdDate(subscription.getCreatedDate())

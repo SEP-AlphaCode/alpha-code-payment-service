@@ -20,7 +20,6 @@ public class SubscriptionDto extends BaseEntityDto implements Serializable {
     private UUID id;
     private UUID planId;
     private UUID accountId;
-    private Integer remainingQuota;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     @JsonProperty(value = "statusText")

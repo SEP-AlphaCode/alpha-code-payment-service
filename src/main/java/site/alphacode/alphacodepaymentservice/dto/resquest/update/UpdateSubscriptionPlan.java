@@ -28,8 +28,4 @@ public class UpdateSubscriptionPlan {
     @NotNull(message = "Billing cycle không được để trống")
     @Min(value = 1, message = "Billing cycle phải ít nhất 1 tháng")
     private Integer billingCycle; // in months
-
-    @NotNull(message = "Quota không được để trống")
-    @Min(value = 0, message = "Quota phải lớn hơn hoặc bằng 0")
-    private Integer quota; // null hoặc 0 = unlimited
 }

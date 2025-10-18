@@ -44,7 +44,6 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
                     .description(request.getDescription())
                     .price(request.getPrice())
                     .billingCycle(request.getBillingCycle())
-                    .quota(request.getQuota())
                     .status(1) // ACTIVE
                     .createdDate(LocalDateTime.now())
                     .build();
@@ -92,7 +91,6 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
             plan.setDescription(request.getDescription());
             plan.setPrice(request.getPrice());
             plan.setBillingCycle(request.getBillingCycle());
-            plan.setQuota(request.getQuota());
             plan.setLastUpdated(LocalDateTime.now());
 
             SubscriptionPlan saved = subscriptionPlanRepository.save(plan);
@@ -125,9 +123,6 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
             }
             if (request.getBillingCycle() != null) {
                 plan.setBillingCycle(request.getBillingCycle());
-            }
-            if (request.getQuota() != null) {
-                plan.setQuota(request.getQuota());
             }
 
             plan.setLastUpdated(LocalDateTime.now());
