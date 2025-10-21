@@ -12,4 +12,7 @@ public interface AddonService {
     AddonDto update(UUID id, UpdateAddon updateAddon);
     AddonDto patch(UUID id, PatchAddon patchAddon);
     void delete(UUID id);
+    AddonDto getNoneDeleteById(UUID id);
+
+    AddonDto getActiveById(UUID id);
 }

@@ -18,4 +18,6 @@ public interface AddonRepository extends JpaRepository<Addon, UUID> {
 
     @Query("SELECT a FROM Addon a WHERE a.name = :name AND a.status <> 0")
     Optional<Addon> findNoneDeletedByName(@Param("name") String name);
+
+    Optional<Addon> findByIdAndStatus(UUID id, Integer status);
 }

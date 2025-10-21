@@ -4,8 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
+import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
@@ -117,4 +119,31 @@ public class AddonServiceImplement implements AddonService {
         existing.setLastUpdated(LocalDateTime.now());
         addonRepository.save(existing);
     }
+
+    @Override
+    @Cacheable(value = "addon", key = "#id")
+    public AddonDto getNoneDeleteById(UUID id){
+        var existing = addonRepository.findNoneDeletedById(id).orElseThrow(()
+                -> new ConflictException("Không tìm thấy addon với id: " + id));
+
+        return AddonMapper.toDto(existing);
+    }
+
+    @Override
+    @Cacheable(value = "addon", key = "#id")
+    public AddonDto getActiveById(UUID id){
+        var existing = addonRepository.findByIdAndStatus(id, 1).orElseThrow(()
+                -> new ConflictException("Không tìm thấy addon với id: " + id));
+
+        return AddonMapper.toDto(existing);
+    }
+
+//    @Override
+//    @Cacheable(value = "addons")
+//    public PagedResult<AddonDto> getNoneDeletedAddons(int page, int size, String search){
+//        var pageable = PagedResult.getPageable(page, size);
+//        var pagedResult = addonRepository.findAllNoneDeleted(pageable);
+//        return PagedResult.of(pagedResult, AddonMapper::toDto);
+//    }
+
 }
