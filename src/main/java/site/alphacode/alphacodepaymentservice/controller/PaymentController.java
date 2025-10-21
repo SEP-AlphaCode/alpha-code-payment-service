@@ -67,13 +67,13 @@ public class PaymentController {
     }
 
     @PostMapping("/payos/get-embedded-link")
-    @PreAuthorize("hasAuthority('ROLE_User')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Parent', 'ROLE_Children')")
     public CheckoutResponseData getEmbeddedLink(@RequestBody CreatePayment createPayment) throws Exception {
          return paymentService.createPayOSEmbeddedLink(createPayment);
     }
 
     @GetMapping("/payos/get-payment-link-information/{orderCode}")
-    @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff', 'ROLE_User')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff', 'ROLE_Parent', 'ROLE_Children')")
     @Operation(summary = "Get PayOS payment link information by order code")
     public PaymentLinkData getPaymentLinkInformation(@PathVariable Long orderCode) throws Exception {
         return payOSService.getPaymentLinkInformation(orderCode);

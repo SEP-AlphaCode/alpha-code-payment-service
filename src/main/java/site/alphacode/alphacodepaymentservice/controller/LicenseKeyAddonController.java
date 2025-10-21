@@ -21,7 +21,7 @@ public class LicenseKeyAddonController {
 
     @GetMapping
     @Operation(summary = "Check if addon is available for license key")
-    @PreAuthorize("hasAuthority('ROLE_User')")
+    @PreAuthorize("hasAnyAuthority('ROLE_Parent', 'ROLE_Children')")
     public boolean isAddonAvailable(@RequestParam UUID addonId, @RequestParam String key) {
         return licenseKeyAddonService.isActiveAddonForLicenseKey(addonId, key);
     }
