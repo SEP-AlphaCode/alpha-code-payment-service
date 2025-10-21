@@ -5,15 +5,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
+import site.alphacode.alphacodepaymentservice.dto.response.SubscriptionPlanDto;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
 import site.alphacode.alphacodepaymentservice.entity.Addon;
+import site.alphacode.alphacodepaymentservice.entity.SubscriptionPlan;
 import site.alphacode.alphacodepaymentservice.exception.ConflictException;
 import site.alphacode.alphacodepaymentservice.mapper.AddonMapper;
+import site.alphacode.alphacodepaymentservice.mapper.SubscriptionPlanMapper;
 import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
 import site.alphacode.alphacodepaymentservice.service.AddonService;
 
@@ -138,12 +145,21 @@ public class AddonServiceImplement implements AddonService {
         return AddonMapper.toDto(existing);
     }
 
-//    @Override
-//    @Cacheable(value = "addons")
-//    public PagedResult<AddonDto> getNoneDeletedAddons(int page, int size, String search){
-//        var pageable = PagedResult.getPageable(page, size);
-//        var pagedResult = addonRepository.findAllNoneDeleted(pageable);
-//        return PagedResult.of(pagedResult, AddonMapper::toDto);
-//    }
+    @Override
+    @Cacheable(value = "addons")
+    public PagedResult<AddonDto> getNoneDeletedAddons(int page, int size, String search){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        var pagedResult = addonRepository.getAllNoneDeletedAddon(search, pageable);
+        Page<AddonDto> dtoPage = pagedResult.map(AddonMapper::toDto);
+        return new PagedResult<>(dtoPage);
+    }
 
+    @Override
+    @Cacheable(value = "active_addons")
+    public PagedResult<AddonDto> getActiveAddons(int page, int size, String search){
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        var pagedResult = addonRepository.getAllActiveAddon(search, pageable);
+        Page<AddonDto> dtoPage = pagedResult.map(AddonMapper::toDto);
+        return new PagedResult<>(dtoPage);
+    }
 }

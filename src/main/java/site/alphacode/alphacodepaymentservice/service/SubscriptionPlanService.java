@@ -16,9 +16,6 @@ public interface SubscriptionPlanService {
     // Lấy plan theo ID
     SubscriptionPlanDto getById(UUID id);
 
-    // Lấy danh sách plan với pagination + search
-    PagedResult<SubscriptionPlanDto> getAll(int page, int size, String search);
-
     // Update toàn bộ plan
     SubscriptionPlanDto update(UUID id, UpdateSubscriptionPlan request);
 
@@ -27,4 +24,8 @@ public interface SubscriptionPlanService {
 
     // Xóa mềm plan
     void delete(UUID id);
+
+    PagedResult<SubscriptionPlanDto> getAllActivePlans(int page, int size, String search);
+
+    PagedResult<SubscriptionPlanDto> getAllPlans(int page, int size, String search);
 }

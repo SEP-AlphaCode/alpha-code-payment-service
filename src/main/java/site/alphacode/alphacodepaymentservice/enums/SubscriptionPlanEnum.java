@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum     SubscriptionPlanEnum {
+    DELETE(0, "ĐÃ XÓA"),
     ACTIVE(1, "ĐANG HOẠT ĐỘNG"),
     INACTIVE(2, "KHÔNG HOẠT ĐỘNG");
 

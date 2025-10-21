@@ -1,6 +1,7 @@
 package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
+import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
@@ -15,4 +16,6 @@ public interface AddonService {
     AddonDto getNoneDeleteById(UUID id);
 
     AddonDto getActiveById(UUID id);
+    PagedResult<AddonDto> getNoneDeletedAddons(int page, int size, String search);
+    PagedResult<AddonDto> getActiveAddons(int page, int size, String search);
 }

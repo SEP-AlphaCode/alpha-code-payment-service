@@ -67,6 +67,17 @@ public class SubscriptionPlanController {
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "search", required = false) String search
     ) {
-        return subscriptionPlanService.getAll(page, size, search);
+        return subscriptionPlanService.getAllActivePlans(page, size, search);
+    }
+
+    @GetMapping("/none-deleted")
+    @Operation(summary = "Get all non-deleted subscription plans with pagination and optional search")
+    @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
+    public PagedResult<SubscriptionPlanDto> getAllNoneDeleted(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "search", required = false) String search
+    ) {
+        return subscriptionPlanService.getAllPlans(page, size, search);
     }
 }

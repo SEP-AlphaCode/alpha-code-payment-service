@@ -31,7 +31,8 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
     @Transactional
     @CachePut(value = "subscription_plan", key = "{#result.id}")
     @Caching(evict = {
-            @CacheEvict(value = "all_subscription_plans", allEntries = true)
+            @CacheEvict(value = "all_subscription_plans", allEntries = true),
+            @CacheEvict(value = "all_active_subscription_plans", allEntries = true)
     })
     public SubscriptionPlanDto create(CreateSubscriptionPlan request) {
         try {
@@ -64,10 +65,18 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
         return SubscriptionPlanMapper.toDto(plan);
     }
 
-    @Cacheable(value = "all_subscription_plans", key = "{#page, #size, #search}")
-    public PagedResult<SubscriptionPlanDto> getAll(int page, int size, String search) {
+    @Cacheable(value = "all_active_subscription_plans", key = "{#page, #size, #search}")
+    public PagedResult<SubscriptionPlanDto> getAllActivePlans(int page, int size, String search) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
         Page<SubscriptionPlan> plans = subscriptionPlanRepository.findAllByNameContainingAndStatus(search, 1, pageable);
+        Page<SubscriptionPlanDto> dtoPage = plans.map(SubscriptionPlanMapper::toDto);
+        return new PagedResult<>(dtoPage);
+    }
+
+    @Cacheable(value = "all_subscription_plans", key = "{#page, #size, #search}")
+    public PagedResult<SubscriptionPlanDto> getAllPlans(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
+        Page<SubscriptionPlan> plans = subscriptionPlanRepository.findAllByNameContaining(search, pageable);
         Page<SubscriptionPlanDto> dtoPage = plans.map(SubscriptionPlanMapper::toDto);
         return new PagedResult<>(dtoPage);
     }
@@ -75,7 +84,8 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
         @Transactional
     @CachePut(value = "subscription_plan", key = "{#id}")
     @Caching(evict = {
-            @CacheEvict(value = "all_subscription_plans", allEntries = true)
+            @CacheEvict(value = "all_subscription_plans", allEntries = true),
+            @CacheEvict(value = "all_active_subscription_plans", allEntries = true)
     })
     public SubscriptionPlanDto update(UUID id, UpdateSubscriptionPlan request) {
         try {
@@ -105,7 +115,8 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
     @Transactional
     @CachePut(value = "subscription_plan", key = "{#id}")
     @Caching(evict = {
-            @CacheEvict(value = "all_subscription_plans", allEntries = true)
+            @CacheEvict(value = "all_subscription_plans", allEntries = true),
+            @CacheEvict(value = "all_active_subscription_plans", allEntries = true)
     })
     public SubscriptionPlanDto patch(UUID id, PatchSubscriptionPlan request) {
         try {
@@ -138,7 +149,8 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "subscription_plan", key = "{#id}"),
-            @CacheEvict(value = "all_subscription_plans", allEntries = true)
+            @CacheEvict(value = "all_subscription_plans", allEntries = true),
+            @CacheEvict(value = "all_active_subscription_plans", allEntries = true)
     })
     public void delete(UUID id) {
         try {
