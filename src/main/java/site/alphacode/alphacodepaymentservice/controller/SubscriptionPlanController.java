@@ -33,7 +33,7 @@ public class SubscriptionPlanController {
     @PostMapping()
     @Operation(summary = "Create new subscription plan")
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
-    public SubscriptionPlanDto create(@Valid @ModelAttribute @RequestBody CreateSubscriptionPlan request) {
+    public SubscriptionPlanDto create(@Valid @RequestBody CreateSubscriptionPlan request) {
         return subscriptionPlanService.create(request);
     }
 
@@ -41,7 +41,7 @@ public class SubscriptionPlanController {
     @Operation(summary = "Update subscription plan by id")
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
     public SubscriptionPlanDto update(@PathVariable UUID id,
-                                      @Valid @ModelAttribute @RequestBody UpdateSubscriptionPlan request) {
+                                      @Valid @RequestBody UpdateSubscriptionPlan request) {
         return subscriptionPlanService.update(id, request);
     }
 
