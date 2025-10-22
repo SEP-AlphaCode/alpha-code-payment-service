@@ -30,14 +30,14 @@ public class SubscriptionPlanController {
         return subscriptionPlanService.getById(id);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping()
     @Operation(summary = "Create new subscription plan")
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
     public SubscriptionPlanDto create(@Valid @ModelAttribute @RequestBody CreateSubscriptionPlan request) {
         return subscriptionPlanService.create(request);
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}")
     @Operation(summary = "Update subscription plan by id")
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
     public SubscriptionPlanDto update(@PathVariable UUID id,
@@ -45,7 +45,7 @@ public class SubscriptionPlanController {
         return subscriptionPlanService.update(id, request);
     }
 
-    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}")
     @Operation(summary = "Patch subscription plan by id")
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
     public SubscriptionPlanDto patch(@PathVariable UUID id,
