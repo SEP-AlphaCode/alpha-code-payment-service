@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PayOSServiceImplement implements PayOSService {
     private final LicenseKeyService licenseKeyService;
-    private final AddonService addonService;
     private final LicenseKeyAddonService licenseKeyAddonService;
     private final SubscriptionService subscriptionService;
     private final CourseServiceClient courseServiceClient;
@@ -41,8 +40,11 @@ public class PayOSServiceImplement implements PayOSService {
     @Value("${payos.checksum.key}")
     private String checkSumKey;
 
-    @Value("${web-base-url}")
-    private String webUrl;
+    @Value("${return-url-payment}")
+    private String returnUrlPayment;
+
+    @Value("${cancel-url-payment}")
+    private String cancelUrlPayment;
 
     private PayOS payOS;
 
@@ -70,8 +72,8 @@ public class PayOSServiceImplement implements PayOSService {
                 .orderCode(orderCode)
                 .amount(payOSEmbeddedLinkRequest.getPrice())
                 .description("Thanh toán đơn hàng")
-                .returnUrl(webUrl)
-                .cancelUrl(webUrl)
+                .returnUrl(returnUrlPayment)
+                .cancelUrl(cancelUrlPayment)
                 .item(itemData)
                 .build();
 

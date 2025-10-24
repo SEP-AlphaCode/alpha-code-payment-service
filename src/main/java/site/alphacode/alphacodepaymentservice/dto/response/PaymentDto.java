@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import site.alphacode.alphacodepaymentservice.base.BaseEntityDto;
-import site.alphacode.alphacodepaymentservice.enums.PaymentEnum;
+import site.alphacode.alphacodepaymentservice.enums.PaymentCategoryEnum;
+import site.alphacode.alphacodepaymentservice.enums.PaymentStatusEnum;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -28,10 +29,10 @@ public class PaymentDto extends BaseEntityDto implements Serializable {
     private UUID keyId;
     @JsonProperty(value = "statusText")
     public String getStatusText() {
-        return PaymentEnum.fromCode(this.getStatus());
+        return PaymentStatusEnum.fromCode(this.getStatus());
     }
     @JsonProperty(value = "categoryText")
     public String getCategoryText() {
-        return PaymentEnum.fromCode(this.getCategory());
+        return PaymentCategoryEnum.fromCode(this.getCategory());
     }
 }

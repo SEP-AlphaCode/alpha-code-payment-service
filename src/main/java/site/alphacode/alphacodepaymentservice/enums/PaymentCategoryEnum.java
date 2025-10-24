@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentEnum {
+public enum PaymentCategoryEnum {
     COURSE(1, "KHÓA HỌC"),
     BUNDLE(2, "GÓI KHÓA HỌC"),
     ADD_ON(3, "DỊCH VỤ BỔ SUNG"),
@@ -17,7 +17,7 @@ public enum PaymentEnum {
 
     public static String fromCode(Integer code) {
         if (code == null) return null;
-        for (PaymentEnum  s : values()) {
+        for (PaymentCategoryEnum s : values()) {
             if (s.code == code) {
                 return s.description;
             }
