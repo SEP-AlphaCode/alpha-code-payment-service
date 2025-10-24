@@ -2,16 +2,16 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
 import site.alphacode.alphacodepaymentservice.entity.Payment;
+import site.alphacode.alphacodepaymentservice.grpc.client.AccountBundleServiceClient;
 import site.alphacode.alphacodepaymentservice.grpc.client.AccountCourseServiceClient;
 import site.alphacode.alphacodepaymentservice.grpc.client.CourseBundleServiceClient;
 import site.alphacode.alphacodepaymentservice.grpc.client.CourseServiceClient;
 import site.alphacode.alphacodepaymentservice.repository.*;
-import site.alphacode.alphacodepaymentservice.service.KeyPriceService;
-import site.alphacode.alphacodepaymentservice.service.PayOSService;
-import site.alphacode.alphacodepaymentservice.service.PaymentService;
+import site.alphacode.alphacodepaymentservice.service.*;
 import vn.payos.type.CheckoutResponseData;
 
 import java.time.LocalDateTime;
@@ -33,6 +33,9 @@ public class PaymentServiceImplement implements PaymentService {
     private final LicenseKeyRepository licenseKeyRepository;
     private final AccountCourseServiceClient accountCourseServiceClient;
     private final CourseBundleServiceClient courseBundleServiceClient;
+    private final AccountBundleServiceClient accountBundleServiceClient;
+    private final LicenseKeyService licenseKeyService;
+    private final LicenseKeyAddonService licenseKeyAddonService;
 
     public CheckoutResponseData createPayOSEmbeddedLink(CreatePayment createPayment) throws Exception {
 
@@ -40,9 +43,9 @@ public class PaymentServiceImplement implements PaymentService {
         Map<String, Object> typeMap = new LinkedHashMap<>();
         typeMap.put("course", createPayment.getCourseId());
         typeMap.put("bundle", createPayment.getBundleId());
-        typeMap.put("addon", createPayment.getAddonId());
+        typeMap.put("license_key_addon", createPayment.getAddonId());
         typeMap.put("subscription_plan", createPayment.getPlanId());
-        typeMap.put("key", createPayment.getKeyId());
+        typeMap.put("license_key", createPayment.getKeyId());
 
         List<String> selected = typeMap.entrySet().stream()
                 .filter(e -> e.getValue() != null)
@@ -74,7 +77,7 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 amount = bundleInfo.getPrice() - bundleInfo.getDiscountPrice();
                 break;
-            case "addon":
+            case "license_key_addon":
                 category = 3;
                 serviceId = createPayment.getAddonId();
                 var addonInfo = addonRepository.findById(serviceId)
@@ -90,7 +93,7 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceName = subscriptionInfo.getName();
                 amount = subscriptionInfo.getPrice();
                 break;
-            case "key":
+            case "license_key":
                 category = 5;
                 serviceId = createPayment.getKeyId();
                 var keyPrice = keyPriceService.getKeyPrice();
@@ -101,6 +104,13 @@ public class PaymentServiceImplement implements PaymentService {
                 throw new IllegalArgumentException("Loại dịch vụ không hợp lệ");
         }
 
+        // --- 1b. Kiểm tra Payment pending ---
+        var existingPayment = paymentRepository
+                .findFirstPendingByAccountAndService(createPayment.getAccountId(), category, serviceId,1);
+
+        UUID licenseKeyAddonId = null;
+        UUID licenseKeyId = null;
+
         // --- Kiểm tra quyền sở hữu (ownership) ---
         switch (chosenType) {
             case "course":
@@ -110,6 +120,10 @@ public class PaymentServiceImplement implements PaymentService {
                 break;
 
             case "bundle":
+                var ownedBundle = accountBundleServiceClient.hasOwnedBundle(createPayment.getAccountId(), serviceId);
+                if(ownedBundle) {
+                    throw new IllegalArgumentException("Bạn đã sở hữu gói học này.");
+                }
                 var courseIdsInBundle = courseBundleServiceClient.getCourseIdsByBundleId(serviceId);
                 var ownedCourseIds = accountCourseServiceClient.getOwnedCoursesInBundle(createPayment.getAccountId(), courseIdsInBundle);
                 if (!ownedCourseIds.isEmpty()) {
@@ -117,7 +131,7 @@ public class PaymentServiceImplement implements PaymentService {
                 }
                 break;
 
-            case "addon":
+            case "license_key_addon":
                 // Lấy license key đang hoạt động của tài khoản
                 var licenseKeyOpt = licenseKeyRepository.findByAccountIdAndStatus(createPayment.getAccountId(), 1);
 
@@ -128,26 +142,43 @@ public class PaymentServiceImplement implements PaymentService {
                 var licenseKey = licenseKeyOpt.get();
 
                 // Kiểm tra addon đã được mua chưa
-                boolean alreadyOwned = licenseKeyAddonRepository.existsByLicenseKeyIdAndAddonId(licenseKey.getId(), serviceId);
+                boolean alreadyOwned = licenseKeyAddonRepository.existsByLicenseKeyIdAndAddonIdAndStatus(licenseKey.getId(), serviceId, 1);
                 if (alreadyOwned) {
                     throw new IllegalArgumentException("Bạn đã sở hữu addon này rồi.");
                 }
+                var addonInfo = addonRepository.findById(createPayment.getAddonId())
+                        .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"));
+                serviceName = addonInfo.getName();
+
+                if(existingPayment.isEmpty()) {
+                    // Create LicenseKeyAddon
+                    CreateLincenseKeyAddon createLincenseKeyAddon = new CreateLincenseKeyAddon();
+                    createLincenseKeyAddon.setLicenseKeyId(licenseKey.getId());
+                    createLincenseKeyAddon.setAddonId(createPayment.getAddonId());
+                    createLincenseKeyAddon.setStatus(2); //Mới tạo không hoạt động, chờ webhook thanh toán thành công
+                    var createdLicenseKeyAddon = licenseKeyAddonService.create(createLincenseKeyAddon);
+
+                    licenseKeyAddonId = createdLicenseKeyAddon.getId();
+                }
 
                 break;
 
-            case "key":
+            case "license_key":
                 if (licenseKeyRepository.findByAccountIdAndStatus(createPayment.getAccountId(), 1).isPresent()) {
                     throw new IllegalArgumentException("Tài khoản này đã có license key hợp lệ.");
                 }
+
+                if(existingPayment.isEmpty()) {
+                    // Chưa có license key hợp lệ, tạo mới license key ở trạng thái chờ thanh toán
+                    var newLicenseKey = licenseKeyService.createLicense(createPayment.getAccountId());
+                    licenseKeyId = newLicenseKey.getId();
+                }
                 break;
+
 
             default:
                 break;
         }
-
-        // --- 1b. Kiểm tra Payment pending ---
-        var existingPayment = paymentRepository
-                .findFirstPendingByAccountAndService(createPayment.getAccountId(), category, serviceId,1);
 
         // --- 2. Tạo orderCode mới ---
         long orderCode = System.currentTimeMillis() / 1000;
@@ -187,9 +218,9 @@ public class PaymentServiceImplement implements PaymentService {
         payment.setAccountId(createPayment.getAccountId());
         payment.setCourseId(createPayment.getCourseId());
         payment.setBundleId(createPayment.getBundleId());
-        payment.setAddonId(createPayment.getAddonId());
+        payment.setLicenseKeyAddonId(licenseKeyAddonId);
         payment.setPlanId(createPayment.getPlanId());
-        payment.setKeyId(createPayment.getKeyId());
+        payment.setLicenseKeyId(licenseKeyId);
 
         // --- 4. Tạo request PayOS ---
         PayOSEmbeddedLinkRequest payRequest = new PayOSEmbeddedLinkRequest();

@@ -16,11 +16,11 @@ public class PaymentMapper {
                 .category(payment.getCategory())
                 .paymentMethod(payment.getPaymentMethod())
                 .accountId(payment.getAccountId())
-                .addonId(payment.getAddonId())
+                .licenseKeyAddonId(payment.getLicenseKeyAddonId())
                 .courseId(payment.getCourseId())
                 .bundleId(payment.getBundleId())
                 .planId(payment.getPlanId())
-                .keyId(payment.getKeyId())
+                .licenseKeyId(payment.getLicenseKeyId())
                 .createdDate(payment.getCreatedDate())
                 .lastUpdated(payment.getLastUpdated())
                 .build();

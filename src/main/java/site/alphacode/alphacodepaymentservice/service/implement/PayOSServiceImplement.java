@@ -138,8 +138,9 @@ public class PayOSServiceImplement implements PayOSService {
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
-            } else if (payment.getAddonId() != null) {
-                var addonInfo = addonRepository.findById(payment.getAddonId())
+            } else if (payment.getLicenseKeyAddonId() != null) {
+                var licenseKeyAddonInfo = licenseKeyAddonService.getById(payment.getLicenseKeyAddonId());
+                var addonInfo = addonRepository.findById(licenseKeyAddonInfo.getAddonId())
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"));
                 serviceName = addonInfo.getName();
                 // Find license key by accountId
@@ -147,11 +148,9 @@ public class PayOSServiceImplement implements PayOSService {
                 if (licenseKey == null) {
                     throw new RuntimeException("Không tìm thấy LicenseKey cho accountId: " + payment.getAccountId());
                 }
-                // Create LicenseKeyAddon
-                CreateLincenseKeyAddon createLincenseKeyAddon = new CreateLincenseKeyAddon();
-                createLincenseKeyAddon.setLicenseKeyId(licenseKey.getId());
-                createLincenseKeyAddon.setAddonId(payment.getAddonId());
-                licenseKeyAddonService.create(createLincenseKeyAddon);
+
+                licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
+
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getPlanId() != null) {
                 var subscriptionInfo = subscriptionPlanRepository.findById(payment.getPlanId())
@@ -159,8 +158,8 @@ public class PayOSServiceImplement implements PayOSService {
                 serviceName = subscriptionInfo.getName();
                 subscriptionService.createOrUpdateSubscription(payment.getAccountId(), payment.getPlanId());
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
-            } else if (payment.getKeyId() != null) {
-                licenseKeyService.createLicense(payment.getAccountId());
+            } else if (payment.getLicenseKeyId() != null) {
+                licenseKeyService.activateLicense(payment.getLicenseKeyId());
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), "Mua license key", payment.getAmount());
             }
 

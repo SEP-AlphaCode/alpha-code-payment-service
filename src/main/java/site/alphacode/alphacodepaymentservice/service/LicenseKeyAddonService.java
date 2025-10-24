@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface LicenseKeyAddonService {
     LicenseKeyAddonDto create(CreateLincenseKeyAddon createLincenseKeyAddon);
     boolean isActiveAddonForLicenseKey(UUID addonId, String key);
+    LicenseKeyAddonDto getById(UUID id);
+    LicenseKeyAddonDto activate(UUID id);
 }

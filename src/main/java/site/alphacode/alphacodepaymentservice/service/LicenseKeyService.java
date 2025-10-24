@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface LicenseKeyService {
     // Tạo key trọn đời và trả về key (string)
-    String createLicense(UUID accountId);
+    LicenseKeyDto createLicense(UUID accountId);
 
     String getKeyByAccountId(UUID accountId);
 
@@ -16,5 +16,6 @@ public interface LicenseKeyService {
     String validateLicense(String key, UUID accountId);
 
     // Vô hiệu hóa key
-    String deactivateLicense(String key);
+    void deactivateLicense(String key);
+    void activateLicense(UUID id);
 }

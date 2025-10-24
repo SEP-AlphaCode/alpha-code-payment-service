@@ -45,8 +45,8 @@ public class Payment extends BaseEntity {
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;
 
-    @Column(name = "addon_id", columnDefinition = "uuid")
-    private UUID addonId;
+    @Column(name = "license_key_addon_id", columnDefinition = "uuid")
+    private UUID licenseKeyAddonId;
 
     @Column(name = "bundle_id", columnDefinition = "uuid")
     private UUID bundleId;
@@ -57,6 +57,6 @@ public class Payment extends BaseEntity {
     @Column(name = "plan_id", columnDefinition = "uuid")
     private UUID planId;
 
-    @Column(name = "key_id", columnDefinition = "uuid")
-    private UUID keyId;
+    @Column(name = "license_key_id", columnDefinition = "uuid")
+    private UUID licenseKeyId;
 }

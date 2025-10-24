@@ -11,4 +11,6 @@ public class CreateLincenseKeyAddon {
     private UUID addonId;
     @NotNull(message = "ID license key là bắt buộc")
     private UUID licenseKeyId;
+    @NotNull(message = "Trạng thái là bắt buộc")
+    Integer status;
 }

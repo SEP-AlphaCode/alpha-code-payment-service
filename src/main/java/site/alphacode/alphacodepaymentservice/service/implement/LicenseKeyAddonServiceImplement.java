@@ -3,6 +3,7 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyAddonDto;
 import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
@@ -28,10 +29,18 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
         var entity = new LicenseKeyAddon();
         entity.setAddonId(createLincenseKeyAddon.getAddonId());
         entity.setLicenseKeyId(createLincenseKeyAddon.getLicenseKeyId());
-        entity.setStatus(1);
+        entity.setStatus(createLincenseKeyAddon.getStatus());
         entity.setCreatedDate(LocalDateTime.now());
         entity = licenseKeyAddonRepository.save(entity);
         return LicenseKeyAddonMapper.toDto(entity);
+    }
+
+    @Override
+    @Cacheable(value = "license_key_addon", key = "{#id}")
+    public LicenseKeyAddonDto getById(UUID id) {
+        var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
+        return LicenseKeyAddonMapper.toDto(licenseKeyAddon);
     }
 
     @Override
@@ -39,5 +48,16 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
         var licenseKey = licenseKeyRepository.findLicenseKeyByKey(key).orElseThrow(() -> new IllegalArgumentException("Key không hợp lệ"));
         var licenseKeyAddon = licenseKeyAddonRepository.findByAddonIdAndLicenseKeyIdAndStatus(addonId, licenseKey.getId(), 1);
         return licenseKeyAddon.isPresent();
+    }
+
+    @Override
+    @Transactional
+    @CachePut(value = "license_key_addon", key = "{#id}")
+    public LicenseKeyAddonDto activate(UUID id){
+        var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
+        licenseKeyAddon.setStatus(1); // Active
+        licenseKeyAddon = licenseKeyAddonRepository.save(licenseKeyAddon);
+        return LicenseKeyAddonMapper.toDto(licenseKeyAddon);
     }
 }

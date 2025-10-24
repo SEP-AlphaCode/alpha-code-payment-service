@@ -1,5 +1,6 @@
 package site.alphacode.alphacodepaymentservice.service.implement;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -25,7 +26,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
 
     @Override
     @CachePut(value = "key", key = "#accountId")
-    public String createLicense(UUID accountId) {
+    public LicenseKeyDto createLicense(UUID accountId) {
         String key;
         do {
             key = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
@@ -36,12 +37,12 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
                 .key(key)
                 .accountId(accountId)
                 .purchaseDate(LocalDateTime.now())
-                .status(LicenseKeyEnum.ACTIVE.getCode())
+                .status(LicenseKeyEnum.INACTIVE.getCode()) // Mặc định là INACTIVE
                 .price(keyPrice.getPrice())
                 .build();
 
-        licenseKeyRepository.save(license);
-        return key; // trả về key dạng string
+        var created = licenseKeyRepository.save(license);
+        return LicenseKeyMapper.toDto(created); // trả về key dạng string
     }
 
     @Override
@@ -74,13 +75,22 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
 
     @Override
     @CacheEvict(value = {"key", "license_key"}, key = "#accountId")
-    public String deactivateLicense(String key) {
-        return licenseKeyRepository.findByKeyAndStatus(key, 1)
+    public void deactivateLicense(String key) {
+        licenseKeyRepository.findByKeyAndStatus(key, 1)
                 .map(license -> {
                     license.setStatus(LicenseKeyEnum.INACTIVE.getCode());
                     licenseKeyRepository.save(license);
                     return LicenseKeyEnum.fromCode(license.getStatus());
-                })
-                .orElse("KHÔNG TỒN TẠI");
+                });
+    }
+
+    @Override
+    @CacheEvict(value = {"key", "license_key"}, allEntries = true)
+    @Transactional
+    public void activateLicense(UUID id){
+        var license = licenseKeyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("KHÔNG TỒN TẠI"));
+        license.setStatus(LicenseKeyEnum.ACTIVE.getCode());
+        licenseKeyRepository.save(license);
     }
 }

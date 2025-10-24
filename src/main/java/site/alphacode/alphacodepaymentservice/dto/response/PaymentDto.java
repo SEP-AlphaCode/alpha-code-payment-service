@@ -22,11 +22,11 @@ public class PaymentDto extends BaseEntityDto implements Serializable {
     private Integer category;
     private String paymentMethod;
     private UUID accountId;
-    private UUID addonId;
+    private UUID licenseKeyAddonId;
     private UUID courseId;
     private UUID bundleId;
     private UUID planId;
-    private UUID keyId;
+    private UUID licenseKeyId;
     @JsonProperty(value = "statusText")
     public String getStatusText() {
         return PaymentStatusEnum.fromCode(this.getStatus());
