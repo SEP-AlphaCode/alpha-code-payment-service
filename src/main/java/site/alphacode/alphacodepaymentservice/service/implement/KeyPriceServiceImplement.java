@@ -33,6 +33,7 @@ public class KeyPriceServiceImplement implements KeyPriceService {
         KeyPrice keyPrice = new KeyPrice();
         keyPrice.setPrice(price);
         keyPrice.setCreatedDate(LocalDateTime.now());
+        keyPrice.setStatus(1);
         keyPrice = keyPriceRepository.save(keyPrice);
 
         return KeyPriceMapper.toDto(keyPrice);
