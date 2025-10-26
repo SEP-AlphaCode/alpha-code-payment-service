@@ -19,7 +19,7 @@ public class LicenseKeyDto implements Serializable {
     private UUID id;
     private String key;
     private UUID accountId;
-    private Integer price;
+    private UUID keyPriceId;
     private LocalDateTime purchaseDate;
     private Integer status;
     @JsonProperty(value = "statusText")

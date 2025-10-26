@@ -31,8 +31,8 @@ public class LicenseKey {
     @Column(name = "account_id", nullable = false, columnDefinition = "uuid")
     private UUID accountId;
 
-    @Column(name = "price", nullable = false)
-    private Integer price;
+    @Column(name = "key_price_id", nullable = false)
+    private UUID keyPriceId;
 
     @Column(name = "purchase_date", nullable = false)
     private LocalDateTime purchaseDate;
@@ -42,4 +42,8 @@ public class LicenseKey {
 
     @OneToMany(mappedBy = "licenseKey", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<LicenseKeyAddon> licenseKeyAddons;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "key_price_id", insertable = false, updatable = false)
+    private KeyPrice keyPrice;
 }

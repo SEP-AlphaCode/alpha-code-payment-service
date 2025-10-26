@@ -28,6 +28,7 @@ public class KeyPriceServiceImplement implements KeyPriceService {
         if(keyPriceRepository.count() > 0) {
             throw new IllegalStateException("Key price đã tồn tại. Không thể tạo mới.");
         }
+        keyPriceRepository.deactivateAllActiveKeys();
 
         KeyPrice keyPrice = new KeyPrice();
         keyPrice.setPrice(price);

@@ -13,7 +13,6 @@ public class LicenseKeyMapper {
                     .key(licenseKey.getKey())
                     .status(licenseKey.getStatus())
                     .accountId(licenseKey.getAccountId())
-                    .price(licenseKey.getPrice())
                     .purchaseDate(licenseKey.getPurchaseDate())
                     .build();
         }

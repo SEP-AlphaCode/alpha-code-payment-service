@@ -31,6 +31,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
         do {
             key = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         } while (licenseKeyRepository.existsByKey(key));
+
         var keyPrice = keyPriceService.getKeyPrice();
 
         LicenseKey license = LicenseKey.builder()
@@ -38,7 +39,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
                 .accountId(accountId)
                 .purchaseDate(LocalDateTime.now())
                 .status(LicenseKeyEnum.INACTIVE.getCode()) // Mặc định là INACTIVE
-                .price(keyPrice.getPrice())
+                .keyPriceId(keyPrice.getId())
                 .build();
 
         var created = licenseKeyRepository.save(license);

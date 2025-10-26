@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
+import site.alphacode.alphacodepaymentservice.base.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -16,19 +18,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class KeyPrice {
+public class KeyPrice extends BaseEntity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @Column(name = "last_updated")
-    private LocalDateTime lastUpdated;
-
     @Column(name = "price", nullable = false)
     private Integer price;
+
+    @OneToMany(mappedBy = "keyPrice", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<LicenseKey> licenseKeys;
 }
