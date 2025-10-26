@@ -13,6 +13,7 @@ public class KeyPriceMapper {
                 .price(keyPrice.getPrice())
                 .createdDate(keyPrice.getCreatedDate())
                 .lastUpdated(keyPrice.getLastUpdated())
+                .status(keyPrice.getStatus())
                 .build();
     }
 }
