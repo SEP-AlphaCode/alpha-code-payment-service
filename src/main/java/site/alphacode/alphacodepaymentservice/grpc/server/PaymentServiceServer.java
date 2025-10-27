@@ -27,22 +27,30 @@ public class PaymentServiceServer extends PaymentServiceGrpc.PaymentServiceImplB
 
     @Override
     public void getKeyByAccountId(GetRequest request, StreamObserver<GetKeyResponse> responseObserver) {
-        try{
-            UUID licenseKeyId = UUID.fromString(request.getId());
-            var key = licenseKeyService.getKeyByAccountId(licenseKeyId);
+        try {
+            UUID accountId = UUID.fromString(request.getId());
+            var key = licenseKeyService.getKeyByAccountId(accountId);
 
-            if(key == null){
-                log.info("Key not found");
-                responseObserver.onError(Status.NOT_FOUND
-                        .withDescription("License key not found for account ID: " + licenseKeyId)
-                        .asRuntimeException());
+            // Nếu không có key thì trả về response với field trống
+            if (key == null) {
+                log.info("Key not found, returning empty response");
+                responseObserver.onNext(
+                        GetKeyResponse.newBuilder()
+                                .setKey("") // hoặc bỏ setKey nếu proto cho phép optional
+                                .build()
+                );
+                responseObserver.onCompleted();
                 return;
             }
 
-            responseObserver.onNext(GetKeyResponse.newBuilder().setKey(key).build());
+            // Nếu có key thì trả bình thường
+            responseObserver.onNext(
+                    GetKeyResponse.newBuilder()
+                            .setKey(key)
+                            .build()
+            );
             responseObserver.onCompleted();
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Error in getKeyByAccountId: ", ex);
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Internal server error")
