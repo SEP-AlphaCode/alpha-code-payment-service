@@ -26,7 +26,7 @@ public class AddonController {
     @Operation(summary = "Get all active addons")
     public PagedResult<AddonDto> getActiveAddons( @RequestParam(value = "page", defaultValue = "1") int page,
                                                   @RequestParam(value = "size", defaultValue = "10") int size,
-                                                  @RequestParam(value = "search", required = false) String search) {
+                                                  @RequestParam(value = "search", defaultValue = "") String search) {
         return addonService.getActiveAddons(page, size, search);
     }
 
@@ -35,7 +35,7 @@ public class AddonController {
     @PreAuthorize("hasAnyAuthority('ROLE_Admin', 'ROLE_Staff')")
     public PagedResult<AddonDto> getNoneDeletedAddons( @RequestParam(value = "page", defaultValue = "1") int page,
                                                        @RequestParam(value = "size", defaultValue = "10") int size,
-                                                       @RequestParam(value = "search", required = false) String search) {
+                                                       @RequestParam(value = "search", defaultValue = "") String search) {
         return addonService.getNoneDeletedAddons(page, size, search);
     }
 

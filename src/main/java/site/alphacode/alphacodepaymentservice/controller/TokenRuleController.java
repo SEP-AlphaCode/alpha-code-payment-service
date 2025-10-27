@@ -60,7 +60,7 @@ public class TokenRuleController {
     @Operation(summary = "Get all token rule")
     public PagedResult<TokenRuleDto> getAllTokenRules(@RequestParam(value = "page", defaultValue = "1") int page,
                                                       @RequestParam(value = "size", defaultValue = "10") int size,
-                                                      @RequestParam(value = "search", required = false) String search) {
+                                                      @RequestParam(value = "search", defaultValue = "") String search) {
         return tokenRuleService.getAlls(page, size, search);
     }
 }
