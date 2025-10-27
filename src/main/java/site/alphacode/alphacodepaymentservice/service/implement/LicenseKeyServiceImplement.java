@@ -59,11 +59,11 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
     }
 
     @Override
-    @Cacheable(value = "key", key = "#accountId")
+    @Cacheable(value = "key", key = "#accountId", unless = "#result == null")
     public String getKeyByAccountId(UUID accountId) {
         return licenseKeyRepository.findByAccountIdAndStatus(accountId, 1)
                 .map(LicenseKey::getKey)
-                .orElse("KHÔNG TỒN TẠI");
+                .orElse(null);
     }
 
     @Override
