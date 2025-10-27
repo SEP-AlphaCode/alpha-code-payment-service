@@ -9,9 +9,8 @@ public enum AddonCategoryEnum {
     OSMO(1, "OSMO"),
     QRCODE(2, "QR CODE"),
     DANCEWITHMUSIC(3, "NHẢY THEO NHẠC"),
-    BILLINGUAL(4, "NÓI SONG NGỮ"),
     JOYSTICKCONTROL(5, "ĐIỀU KHIỂN BẰNG CẦN ĐIỀU KHIỂN"),
-    VOICECONTROL(6, "ĐIỀU KHIỂN BẰNG GIỌNG NÓI"),
+    MULTIROBOTCONTROL(6, "ĐIỀU KHIỂN NHIỀU ROBOT"),
     SMARTHOME(7, "NHÀ THÔNG MINH");
 
     private final int code;
