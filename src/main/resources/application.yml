@@ -53,6 +53,11 @@ spring:
 
 
 grpc:
+  server:
+    port: ${GRPC_PAYMENT_SERVICE_PORT}
+    address: 0.0.0.0
+    security:
+      enabled: false  # dùng TLS=true nếu cần
   client:
     alpha-course-service:
       address: static://${GRPC_COURSE_SERVICE_BASE_URL:localhost}:${GRPC_COURSE_SERVICE_PORT:50052}

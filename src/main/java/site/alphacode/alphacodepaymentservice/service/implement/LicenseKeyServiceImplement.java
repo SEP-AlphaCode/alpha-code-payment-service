@@ -63,7 +63,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
     public String getKeyByAccountId(UUID accountId) {
         return licenseKeyRepository.findByAccountIdAndStatus(accountId, 1)
                 .map(LicenseKey::getKey)
-                .orElse("KHÔNG TỒN TẠI");
+                .orElse(null);
     }
 
     @Override
