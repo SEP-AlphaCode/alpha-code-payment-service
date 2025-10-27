@@ -41,6 +41,11 @@ public class AddonServiceImplement implements AddonService {
             throw new ConflictException("Tên addon đã tồn tại");
         }
 
+        var isExistByCategory = addonRepository.existsAddonByCategory(createAddon.getCategory());
+        if(isExistByCategory){
+            throw new ConflictException("Chỉ được phép có một addon cho mỗi danh mục");
+        }
+
         var newAddon = new Addon();
         newAddon.setName(createAddon.getName());
         newAddon.setPrice(createAddon.getPrice());
@@ -68,6 +73,11 @@ public class AddonServiceImplement implements AddonService {
             }
         }
 
+        if(!existing.getCategory().equals(updateAddon.getCategory())){
+            var isExistByCategory = addonRepository.existsAddonByCategory(updateAddon.getCategory());
+            if(isExistByCategory) throw new ConflictException("Chỉ được phép có một addon cho mỗi danh mục");
+        }
+
         existing.setName(updateAddon.getName());
         existing.setPrice(updateAddon.getPrice());
         existing.setDescription(updateAddon.getDescription());
@@ -91,6 +101,11 @@ public class AddonServiceImplement implements AddonService {
             if (addOnWithName.isPresent() && !addOnWithName.get().getId().equals(id)) {
                 throw new ConflictException("Addon với tên: " + patchAddon.getName() + " đã tồn tại");
             }
+        }
+
+        if(!existing.getCategory().equals(patchAddon.getCategory())){
+            var isExistByCategory = addonRepository.existsAddonByCategory(patchAddon.getCategory());
+            if(isExistByCategory) throw new ConflictException("Chỉ được phép có một addon cho mỗi danh mục");
         }
 
         if(patchAddon.getPrice() != null){

@@ -32,4 +32,7 @@ public interface AddonRepository extends JpaRepository<Addon, UUID> {
             "SELECT a FROM Addon a WHERE (a.name LIKE %:search% OR a.description LIKE %:search%) AND a.status = 1"
     )
     Page<Addon> getAllActiveAddon(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Addon a WHERE a.category = :category AND a.status <> 0")
+    boolean existsAddonByCategory(Integer category);
 }
