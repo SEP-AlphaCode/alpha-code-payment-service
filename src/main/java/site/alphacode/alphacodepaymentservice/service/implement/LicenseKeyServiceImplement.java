@@ -24,8 +24,11 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
     private final LicenseKeyRepository licenseKeyRepository;
     private final KeyPriceService keyPriceService;
 
+    /**
+     * Tạo license mới, cache riêng cho LicenseKeyDto
+     */
     @Override
-    @CachePut(value = "key", key = "#accountId")
+    @CachePut(value = "license_key_dto", key = "#accountId")
     public LicenseKeyDto createLicense(UUID accountId) {
         String key;
         do {
@@ -38,14 +41,17 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
                 .key(key)
                 .accountId(accountId)
                 .purchaseDate(LocalDateTime.now())
-                .status(LicenseKeyEnum.INACTIVE.getCode()) // Mặc định là INACTIVE
+                .status(LicenseKeyEnum.INACTIVE.getCode())
                 .keyPriceId(keyPrice.getId())
                 .build();
 
         var created = licenseKeyRepository.save(license);
-        return LicenseKeyMapper.toDto(created); // trả về key dạng string
+        return LicenseKeyMapper.toDto(created);
     }
 
+    /**
+     * Validate license
+     */
     @Override
     public String validateLicense(String key, UUID accountId) {
         return licenseKeyRepository.findByKeyAndStatus(key, 1)
@@ -58,35 +64,46 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
                 .orElse("KHÔNG TỒN TẠI");
     }
 
+    /**
+     * Lấy key dạng String, cache riêng
+     */
     @Override
-    @Cacheable(value = "key", key = "#accountId", unless = "#result == null")
+    @Cacheable(value = "key_string", key = "#accountId", unless = "#result == null")
     public String getKeyByAccountId(UUID accountId) {
         return licenseKeyRepository.findByAccountIdAndStatus(accountId, 1)
                 .map(LicenseKey::getKey)
                 .orElse(null);
     }
 
+    /**
+     * Lấy LicenseKeyDto, cache riêng
+     */
     @Override
-    @Cacheable(value = "license_key", key = "#accountId")
+    @Cacheable(value = "license_key_dto", key = "#accountId")
     public LicenseKeyDto getLicenseByAccountId(UUID accountId){
         var license = licenseKeyRepository.findByAccountIdAndStatus(accountId, 1)
                 .orElseThrow(() -> new RuntimeException("KHÔNG TỒN TẠI"));
         return LicenseKeyMapper.toDto(license);
     }
 
+    /**
+     * Vô hiệu hóa license
+     */
     @Override
-    @CacheEvict(value = {"key", "license_key"}, key = "#accountId")
+    @CacheEvict(value = {"key_string", "license_key_dto"}, key = "#accountId")
     public void deactivateLicense(String key) {
         licenseKeyRepository.findByKeyAndStatus(key, 1)
-                .map(license -> {
+                .ifPresent(license -> {
                     license.setStatus(LicenseKeyEnum.INACTIVE.getCode());
                     licenseKeyRepository.save(license);
-                    return LicenseKeyEnum.fromCode(license.getStatus());
                 });
     }
 
+    /**
+     * Kích hoạt license
+     */
     @Override
-    @CacheEvict(value = {"key", "license_key"}, allEntries = true)
+    @CacheEvict(value = {"key_string", "license_key_dto"}, allEntries = true)
     @Transactional
     public void activateLicense(UUID id){
         var license = licenseKeyRepository.findById(id)
@@ -95,3 +112,4 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
         licenseKeyRepository.save(license);
     }
 }
+
