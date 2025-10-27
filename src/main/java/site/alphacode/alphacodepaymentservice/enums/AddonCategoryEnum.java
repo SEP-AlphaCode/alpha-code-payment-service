@@ -10,7 +10,6 @@ public enum AddonCategoryEnum {
     QRCODE(2, "QR CODE"),
     DANCEWITHMUSIC(3, "NHẢY THEO NHẠC"),
     JOYSTICKCONTROL(5, "ĐIỀU KHIỂN BẰNG CẦN ĐIỀU KHIỂN"),
-    MULTIROBOTCONTROL(6, "ĐIỀU KHIỂN NHIỀU ROBOT"),
     SMARTHOME(7, "NHÀ THÔNG MINH");
 
     private final int code;
