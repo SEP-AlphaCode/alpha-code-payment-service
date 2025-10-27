@@ -12,6 +12,7 @@ import site.alphacode.alphacodepaymentservice.mapper.LicenseKeyAddonMapper;
 import site.alphacode.alphacodepaymentservice.repository.LicenseKeyAddonRepository;
 import site.alphacode.alphacodepaymentservice.repository.LicenseKeyRepository;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyAddonService;
+import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     private final LicenseKeyAddonRepository licenseKeyAddonRepository;
     private final LicenseKeyRepository licenseKeyRepository;
+    private final LicenseKeyService licenseKeyService;
 
     @Override
     @Transactional
@@ -53,11 +55,32 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     @Override
     @Transactional
     @CachePut(value = "license_key_addon", key = "{#id}")
-    public LicenseKeyAddonDto activate(UUID id){
+    public void activate(UUID id){
         var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
         licenseKeyAddon.setStatus(1); // Active
         licenseKeyAddon = licenseKeyAddonRepository.save(licenseKeyAddon);
-        return LicenseKeyAddonMapper.toDto(licenseKeyAddon);
+        LicenseKeyAddonMapper.toDto(licenseKeyAddon);
     }
+
+    @Override
+    public boolean isActiveAddonForLicenseKey(Integer category, String key) {
+        return licenseKeyAddonRepository
+                .findActiveAddonByCategory(category, key, 1)
+                .isPresent();
+    }
+
+    @Override
+    public boolean validateAddon(site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request) {
+        // 1) Check license key valid + đúng account
+        String result = licenseKeyService.validateLicense(request.getKey(), request.getAccountId());
+        if (!"ACTIVE".equals(result)) {
+            return false;
+        }
+
+        // 2) Check addon by category
+        return isActiveAddonForLicenseKey(request.getCategory(), request.getKey());
+    }
+
+
 }
