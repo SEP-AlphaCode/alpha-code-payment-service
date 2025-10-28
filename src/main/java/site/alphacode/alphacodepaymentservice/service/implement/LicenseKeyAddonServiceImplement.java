@@ -73,8 +73,8 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     @Override
     public boolean validateAddon(site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request) {
         // 1) Check license key valid + đúng account
-        String result = licenseKeyService.validateLicense(request.getKey(), request.getAccountId());
-        if (!"ACTIVE".equals(result)) {
+        var result = licenseKeyService.validateLicense(request.getKey(), request.getAccountId());
+        if (!result) {
             return false;
         }
 

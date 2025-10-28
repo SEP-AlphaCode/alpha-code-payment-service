@@ -39,7 +39,6 @@ public class LicenseKeyController {
     @GetMapping("validate-key")
     @Operation(summary = "Validate license key")
     public boolean validateLicenseKey(@RequestParam String key, @RequestParam UUID accountId) {
-        String result =  licenseKeyService.validateLicense(key, accountId);
-        return "ACTIVE".equals(result);
+        return licenseKeyService.validateLicense(key, accountId);
     }
 }

@@ -13,7 +13,7 @@ public interface LicenseKeyService {
     LicenseKeyDto getLicenseByAccountId(UUID accountId);
 
     // Validate key: trả về trạng thái dạng string
-    String validateLicense(String key, UUID accountId);
+    boolean validateLicense(String key, UUID accountId);
 
     // Vô hiệu hóa key
     void deactivateLicense(String key);

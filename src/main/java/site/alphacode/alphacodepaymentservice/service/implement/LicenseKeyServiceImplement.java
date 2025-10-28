@@ -53,15 +53,10 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
      * Validate license
      */
     @Override
-    public String validateLicense(String key, UUID accountId) {
+    public boolean validateLicense(String key, UUID accountId) {
         return licenseKeyRepository.findByKeyAndStatus(key, 1)
-                .map(license -> {
-                    if (!license.getAccountId().equals(accountId)) {
-                        return "KHÔNG PHÙ HỢP ACCOUNT";
-                    }
-                    return LicenseKeyEnum.fromCode(license.getStatus());
-                })
-                .orElse("KHÔNG TỒN TẠI");
+                .map(license -> license.getAccountId().equals(accountId))
+                .orElse(false);
     }
 
     /**
