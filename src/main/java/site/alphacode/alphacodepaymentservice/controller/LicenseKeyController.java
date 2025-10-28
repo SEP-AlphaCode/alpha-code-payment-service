@@ -35,4 +35,11 @@ public class LicenseKeyController {
     public LicenseKeyDto getLicenseKey(@PathVariable UUID accountId) {
         return licenseKeyService.getLicenseByAccountId(accountId);
     }
+
+    @GetMapping("validate-key")
+    @Operation(summary = "Validate license key")
+    public boolean validateLicenseKey(@RequestParam String key, @RequestParam UUID accountId) {
+        String result =  licenseKeyService.validateLicense(key, accountId);
+        return "ACTIVE".equals(result);
+    }
 }
