@@ -132,7 +132,7 @@ public class AddonServiceImplement implements AddonService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"addon", "addons"}, allEntries = true)
+    @CacheEvict(value = {"addon", "addons", "active_addons"}, allEntries = true)
     public void delete(UUID id){
         var existing = addonRepository.findNoneDeletedById(id).orElseThrow(()
                 -> new ConflictException("Không tìm thấy addon với id: " + id));

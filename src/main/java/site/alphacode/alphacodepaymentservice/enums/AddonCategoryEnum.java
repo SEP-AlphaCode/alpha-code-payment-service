@@ -8,9 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum AddonCategoryEnum {
     OSMO(1, "OSMO"),
     QRCODE(2, "QR CODE"),
-    DANCEWITHMUSIC(3, "NHẢY THEO NHẠC"),
-    JOYSTICKCONTROL(5, "ĐIỀU KHIỂN BẰNG CẦN ĐIỀU KHIỂN"),
-    SMARTHOME(7, "NHÀ THÔNG MINH");
+    SMARTHOME(3, "NHÀ THÔNG MINH"),
+    BLOCKLY(4, "LẬP TRÌNH BLOCKLY");
 
     private final int code;
     private final String description;
