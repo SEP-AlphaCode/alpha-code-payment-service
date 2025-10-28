@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "license_key";
+option java_outer_classname = "LicenseKeyProto";
+
+service LicenseKeyService {
+  // Kiểm tra license key của 1 account
+  rpc GetLicenseByAccountId(GetLicenseRequest) returns (GetLicenseResponse);
+}
+
+message GetLicenseRequest {
+  string account_id = 1; // UUID của account
+}
+
+message GetLicenseResponse {
+  bool has_license = 1;  // true nếu account có license hợp lệ
+  string key = 2;        // license key (nếu có)
+  int32 status = 3;
+}
