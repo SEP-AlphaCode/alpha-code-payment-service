@@ -45,6 +45,7 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
                     .description(request.getDescription())
                     .price(request.getPrice())
                     .billingCycle(request.getBillingCycle())
+                    .isRecommended(request.getIsRecommneded())
                     .status(1) // ACTIVE
                     .createdDate(LocalDateTime.now())
                     .build();
@@ -101,6 +102,7 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
             plan.setDescription(request.getDescription());
             plan.setPrice(request.getPrice());
             plan.setBillingCycle(request.getBillingCycle());
+            plan.setIsRecommended(request.getIsRecommended());
             plan.setLastUpdated(LocalDateTime.now());
 
             SubscriptionPlan saved = subscriptionPlanRepository.save(plan);
@@ -134,6 +136,10 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
             }
             if (request.getBillingCycle() != null) {
                 plan.setBillingCycle(request.getBillingCycle());
+            }
+
+            if (request.getIsRecommended() != null) {
+                plan.setIsRecommended(request.getIsRecommended());
             }
 
             plan.setLastUpdated(LocalDateTime.now());

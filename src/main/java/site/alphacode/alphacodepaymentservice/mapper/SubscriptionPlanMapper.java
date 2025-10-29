@@ -17,6 +17,7 @@ public class SubscriptionPlanMapper {
                 .createdDate(subscriptionPlan.getCreatedDate())
                 .lastUpdated(subscriptionPlan.getLastUpdated())
                 .status(subscriptionPlan.getStatus())
+                .isRecommended(subscriptionPlan.getIsRecommended())
                 .build();
     }
 }

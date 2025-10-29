@@ -28,4 +28,7 @@ public class UpdateSubscriptionPlan {
     @NotNull(message = "Billing cycle không được để trống")
     @Min(value = 1, message = "Billing cycle phải ít nhất 1 tháng")
     private Integer billingCycle; // in months
+
+    @NotNull(message = "isRecommended không được để trống")
+    private Boolean isRecommended;
 }

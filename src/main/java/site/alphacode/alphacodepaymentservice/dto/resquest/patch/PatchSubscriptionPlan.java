@@ -16,6 +16,8 @@ public class PatchSubscriptionPlan {
     @Min(value = 0, message = "Giá phải lớn hơn hoặc bằng 0")
     private Integer price;
 
+    private Boolean isRecommended;
+
     @Min(value = 1, message = "Billing cycle phải ít nhất 1 tháng")
     private Integer billingCycle; // in months
 }
