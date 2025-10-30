@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface AddonRepository extends JpaRepository<Addon, UUID> {
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Addon a WHERE a.name = :name AND a.status <> 0")
     boolean existsAddonByName(String name);
 
     @Query("SELECT a FROM Addon a WHERE a.id = :id AND a.status <> 0")

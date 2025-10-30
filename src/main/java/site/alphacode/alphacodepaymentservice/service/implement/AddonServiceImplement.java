@@ -161,7 +161,7 @@ public class AddonServiceImplement implements AddonService {
     }
 
     @Override
-    @Cacheable(value = "addons")
+    @Cacheable(value = "addons", key = "{#page, #size, #search}")
     public PagedResult<AddonDto> getNoneDeletedAddons(int page, int size, String search){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
         var pagedResult = addonRepository.getAllNoneDeletedAddon(search, pageable);
@@ -170,7 +170,7 @@ public class AddonServiceImplement implements AddonService {
     }
 
     @Override
-    @Cacheable(value = "active_addons")
+    @Cacheable(value = "active_addons", key = "{#page, #size, #search}")
     public PagedResult<AddonDto> getActiveAddons(int page, int size, String search){
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdDate").descending());
         var pagedResult = addonRepository.getAllActiveAddon(search, pageable);
