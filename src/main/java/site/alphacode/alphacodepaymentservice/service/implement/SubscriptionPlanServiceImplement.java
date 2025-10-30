@@ -45,7 +45,7 @@ public class SubscriptionPlanServiceImplement implements SubscriptionPlanService
                     .description(request.getDescription())
                     .price(request.getPrice())
                     .billingCycle(request.getBillingCycle())
-                    .isRecommended(request.getIsRecommneded())
+                    .isRecommended(request.getIsRecommended())
                     .status(1) // ACTIVE
                     .createdDate(LocalDateTime.now())
                     .build();

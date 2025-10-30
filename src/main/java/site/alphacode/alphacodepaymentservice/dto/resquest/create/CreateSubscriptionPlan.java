@@ -25,5 +25,5 @@ public class CreateSubscriptionPlan {
     private Integer billingCycle; // in months
 
     @NotNull(message = "isRecommneded không được để trống")
-    private Boolean isRecommneded;
+    private Boolean isRecommended;
 }
