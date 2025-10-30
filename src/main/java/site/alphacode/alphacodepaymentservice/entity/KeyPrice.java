@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import site.alphacode.alphacodepaymentservice.base.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,5 +30,5 @@ public class KeyPrice extends BaseEntity {
     private Integer price;
 
     @OneToMany(mappedBy = "keyPrice", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<LicenseKey> licenseKeys;
+    private List<LicenseKey> licenseKeys;
 }

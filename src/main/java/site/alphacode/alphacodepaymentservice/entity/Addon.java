@@ -9,6 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 import site.alphacode.alphacodepaymentservice.base.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,5 +39,5 @@ public class Addon extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "addon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<LicenseKeyAddon> licenseKeyAddons;
+    private List<LicenseKeyAddon> licenseKeyAddons;
 }
