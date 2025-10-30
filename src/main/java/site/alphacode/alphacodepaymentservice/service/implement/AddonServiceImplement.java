@@ -61,7 +61,7 @@ public class AddonServiceImplement implements AddonService {
     @Override
     @Transactional
     @CachePut(value = "addon", key = "#id")
-    @CacheEvict(value = "addons", allEntries = true)
+    @CacheEvict(value = {"addons", "active_addons"}, allEntries = true)
     public AddonDto update(UUID id, UpdateAddon updateAddon){
         var existing = addonRepository.findNoneDeletedById(id).orElseThrow(()
                 -> new ConflictException("Không tìm thấy addon với id: " + id));
@@ -91,7 +91,7 @@ public class AddonServiceImplement implements AddonService {
     @Override
     @Transactional
     @CachePut(value = "addon", key = "#id")
-    @CacheEvict(value = "addons", allEntries = true)
+    @CacheEvict(value = {"addons","active_addons"}, allEntries = true)
     public AddonDto patch(UUID id, PatchAddon patchAddon){
         var existing = addonRepository.findNoneDeletedById(id).orElseThrow(()
                 -> new ConflictException("Không tìm thấy addon với id: " + id));
