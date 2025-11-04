@@ -6,13 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSubscriptionDashboard {
+public class UserSubscriptionDashboard implements Serializable {
     private String planName;
     private LocalDateTime endDate;
     private Integer status;

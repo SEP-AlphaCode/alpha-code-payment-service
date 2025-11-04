@@ -5,13 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LicenseKeyInfo {
+public class LicenseKeyInfo implements Serializable {
     private Boolean hasPurchased;
     private LocalDateTime purchaseDate;
 }
