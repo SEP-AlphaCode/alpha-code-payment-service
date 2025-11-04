@@ -1,5 +1,6 @@
 package site.alphacode.alphacodepaymentservice.grpc.server;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import jakarta.annotation.PostConstruct;
 import license_key.GetLicenseRequest;
@@ -26,31 +27,36 @@ public class LicenseKeyServiceServer extends LicenseKeyServiceGrpc.LicenseKeySer
 
     @Override
     public void getLicenseByAccountId(GetLicenseRequest request, StreamObserver<GetLicenseResponse> responseObserver) {
-        GetLicenseResponse.Builder responseBuilder;
+        GetLicenseResponse.Builder responseBuilder = GetLicenseResponse.newBuilder();
         try {
             UUID accountId = UUID.fromString(request.getAccountId());
 
             var licenseKey = licenseKeyService.getLicenseByAccountId(accountId);
-            responseBuilder = GetLicenseResponse.newBuilder();
 
-            responseBuilder
-                    .setHasLicense(true)
-                    .setKey(licenseKey.getKey())
-                    .setStatus(licenseKey.getStatus())  ;
+            if (licenseKey == null) {
+                responseBuilder.setHasLicense(false);
+            } else {
+                responseBuilder
+                        .setHasLicense(true)
+                        .setKey(licenseKey.getKey())
+                        .setStatus(licenseKey.getStatus());
+            }
 
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
 
-    } catch (IllegalArgumentException e) {
-        // Lỗi UUID không hợp lệ
-        responseObserver.onError(
-                new RuntimeException("Invalid accountId format: " + e.getMessage())
-        );
-    } catch (Exception e) {
-        // Bắt lỗi khác (VD: DB, service,…)
-        responseObserver.onError(e);
-    }
-
-
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                            .withDescription("Invalid accountId format: " + e.getMessage())
+                            .asRuntimeException()
+            );
+        } catch (Exception e) {
+            responseObserver.onError(
+                    Status.INTERNAL
+                            .withDescription("Internal error: " + e.getMessage())
+                            .asRuntimeException()
+            );
+        }
     }
 }
