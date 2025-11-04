@@ -1,6 +1,7 @@
 package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyDto;
+import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyInfo;
 
 import java.util.UUID;
 
@@ -18,4 +19,5 @@ public interface LicenseKeyService {
     // Vô hiệu hóa key
     void deactivateLicense(String key);
     void activateLicense(UUID id);
+    LicenseKeyInfo getLicenseInfoByAccountId(UUID accountId);
 }

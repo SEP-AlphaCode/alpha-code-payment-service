@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyDto;
+import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyInfo;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
 
 import java.util.UUID;
@@ -40,5 +41,11 @@ public class LicenseKeyController {
     @Operation(summary = "Validate license key")
     public boolean validateLicenseKey(@RequestParam String key, @RequestParam UUID accountId) {
         return licenseKeyService.validateLicense(key, accountId);
+    }
+
+    @GetMapping("user-license-info/{accountId}")
+    @Operation(summary = "Get user license info by account id")
+    public LicenseKeyInfo getUserLicenseInfo(@PathVariable UUID accountId) {
+        return licenseKeyService.getLicenseInfoByAccountId(accountId);
     }
 }

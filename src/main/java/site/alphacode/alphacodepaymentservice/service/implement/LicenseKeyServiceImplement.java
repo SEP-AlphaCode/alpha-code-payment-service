@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyDto;
+import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyInfo;
 import site.alphacode.alphacodepaymentservice.entity.LicenseKey;
 import site.alphacode.alphacodepaymentservice.enums.LicenseKeyEnum;
 import site.alphacode.alphacodepaymentservice.mapper.LicenseKeyMapper;
@@ -29,6 +30,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
      */
     @Override
     @CachePut(value = "license_key_dto", key = "#accountId")
+    @CacheEvict(value = {"key_string", "license_key_dto", "license_key_info"}, allEntries = true)
     public LicenseKeyDto createLicense(UUID accountId) {
         String key;
         do {
@@ -85,7 +87,7 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
      * Vô hiệu hóa license
      */
     @Override
-    @CacheEvict(value = {"key_string", "license_key_dto"}, key = "#accountId")
+    @CacheEvict(value = {"key_string", "license_key_dto", "license_key_info"}, key = "#accountId")
     public void deactivateLicense(String key) {
         licenseKeyRepository.findByKeyAndStatus(key, 1)
                 .ifPresent(license -> {
@@ -98,13 +100,31 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
      * Kích hoạt license
      */
     @Override
-    @CacheEvict(value = {"key_string", "license_key_dto"}, allEntries = true)
+    @CacheEvict(value = {"key_string", "license_key_dto", "license_key_info"}, allEntries = true)
     @Transactional
     public void activateLicense(UUID id){
         var license = licenseKeyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("KHÔNG TỒN TẠI"));
         license.setStatus(LicenseKeyEnum.ACTIVE.getCode());
         licenseKeyRepository.save(license);
+    }
+
+    /**
+     * Lấy thông tin license
+     */
+    @Override
+    @Cacheable(value = "license_key_info", key = "#accountId")
+    public LicenseKeyInfo getLicenseInfoByAccountId(UUID accountId){
+        var license = licenseKeyRepository.findByAccountIdAndStatus(accountId, 1);
+
+        LicenseKeyInfo licenseKeyInfo = new LicenseKeyInfo();
+        if(license.isEmpty()){
+            licenseKeyInfo.setHasPurchased(false);
+            return licenseKeyInfo;
+        }
+        licenseKeyInfo.setHasPurchased(true);
+        licenseKeyInfo.setPurchaseDate(license.get().getPurchaseDate());
+        return licenseKeyInfo;
     }
 }
 
