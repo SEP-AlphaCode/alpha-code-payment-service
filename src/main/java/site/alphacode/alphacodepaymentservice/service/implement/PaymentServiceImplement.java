@@ -2,9 +2,9 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateLincenseKeyAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreatePayment;
+import site.alphacode.alphacodepaymentservice.dto.request.create.PayOSEmbeddedLinkRequest;
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.grpc.client.AccountBundleServiceClient;
 import site.alphacode.alphacodepaymentservice.grpc.client.AccountCourseServiceClient;

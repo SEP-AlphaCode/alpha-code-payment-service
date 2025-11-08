@@ -1,4 +1,4 @@
-package site.alphacode.alphacodepaymentservice.dto.resquest.update;
+package site.alphacode.alphacodepaymentservice.dto.request.update;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

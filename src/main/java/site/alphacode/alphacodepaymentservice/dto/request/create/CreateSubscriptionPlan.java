@@ -1,4 +1,4 @@
-package site.alphacode.alphacodepaymentservice.dto.resquest.update;
+package site.alphacode.alphacodepaymentservice.dto.request.create;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -6,18 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
-public class UpdateSubscriptionPlan {
-    @NotNull(message = "Id subscription plan là bắt buộc")
-    private UUID id;
+public class CreateSubscriptionPlan {
 
     @NotBlank(message = "Tên gói không được để trống")
     @Size(max = 255, message = "Tên gói tối đa 255 ký tự")
     private String name;
 
-    @NotNull(message = "Mô tả không được để trống")
     @Size(max = 1000, message = "Mô tả tối đa 1000 ký tự")
     private String description;
 
@@ -29,6 +24,6 @@ public class UpdateSubscriptionPlan {
     @Min(value = 1, message = "Billing cycle phải ít nhất 1 tháng")
     private Integer billingCycle; // in months
 
-    @NotNull(message = "isRecommended không được để trống")
+    @NotNull(message = "isRecommneded không được để trống")
     private Boolean isRecommended;
 }

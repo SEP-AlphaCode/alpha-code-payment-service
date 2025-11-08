@@ -2,9 +2,9 @@ package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.response.SubscriptionPlanDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateSubscriptionPlan;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchSubscriptionPlan;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateSubscriptionPlan;
 
 import java.util.UUID;
 

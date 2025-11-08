@@ -8,9 +8,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.response.TokenRuleDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateTokenRule;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchTokenRule;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateTokenRule;
 import site.alphacode.alphacodepaymentservice.service.TokenRuleService;
 
 import java.util.UUID;

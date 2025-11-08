@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreatePayment;
 import site.alphacode.alphacodepaymentservice.service.PayOSService;
 import site.alphacode.alphacodepaymentservice.service.PaymentService;
 import vn.payos.type.*;

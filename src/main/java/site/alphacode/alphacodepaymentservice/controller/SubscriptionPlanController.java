@@ -4,14 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.response.SubscriptionPlanDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateSubscriptionPlan;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchSubscriptionPlan;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchSubscriptionPlan;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateSubscriptionPlan;
 import site.alphacode.alphacodepaymentservice.service.SubscriptionPlanService;
 
 import java.util.UUID;

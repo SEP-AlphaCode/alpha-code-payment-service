@@ -2,9 +2,9 @@ package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateAddon;
 
 import java.util.UUID;
 

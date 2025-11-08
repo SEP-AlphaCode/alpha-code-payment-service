@@ -12,15 +12,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
-import site.alphacode.alphacodepaymentservice.dto.response.SubscriptionPlanDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateAddon;
 import site.alphacode.alphacodepaymentservice.entity.Addon;
-import site.alphacode.alphacodepaymentservice.entity.SubscriptionPlan;
 import site.alphacode.alphacodepaymentservice.exception.ConflictException;
 import site.alphacode.alphacodepaymentservice.mapper.AddonMapper;
-import site.alphacode.alphacodepaymentservice.mapper.SubscriptionPlanMapper;
 import site.alphacode.alphacodepaymentservice.repository.AddonRepository;
 import site.alphacode.alphacodepaymentservice.service.AddonService;
 

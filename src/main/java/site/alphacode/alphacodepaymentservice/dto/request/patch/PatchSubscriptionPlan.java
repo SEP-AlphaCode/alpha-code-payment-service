@@ -1,4 +1,4 @@
-package site.alphacode.alphacodepaymentservice.dto.resquest.patch;
+package site.alphacode.alphacodepaymentservice.dto.request.patch;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;

@@ -8,9 +8,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.response.AddonDto;
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateAddon;
 import site.alphacode.alphacodepaymentservice.service.AddonService;
 
 import java.util.UUID;

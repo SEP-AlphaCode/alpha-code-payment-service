@@ -1,7 +1,7 @@
 package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyAddonDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateLincenseKeyAddon;
 
 import java.util.UUID;
 

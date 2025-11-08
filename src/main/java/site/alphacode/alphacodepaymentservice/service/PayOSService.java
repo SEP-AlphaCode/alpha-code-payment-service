@@ -1,6 +1,6 @@
 package site.alphacode.alphacodepaymentservice.service;
 
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
+import site.alphacode.alphacodepaymentservice.dto.request.create.PayOSEmbeddedLinkRequest;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentLinkData;
 import vn.payos.type.Webhook;

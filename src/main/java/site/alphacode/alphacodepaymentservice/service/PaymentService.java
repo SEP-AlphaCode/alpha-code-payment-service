@@ -1,6 +1,6 @@
 package site.alphacode.alphacodepaymentservice.service;
 
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreatePayment;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreatePayment;
 import vn.payos.type.CheckoutResponseData;
 
 public interface PaymentService {

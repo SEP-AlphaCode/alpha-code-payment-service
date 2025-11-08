@@ -2,9 +2,9 @@ package site.alphacode.alphacodepaymentservice.service;
 
 import site.alphacode.alphacodepaymentservice.dto.response.PagedResult;
 import site.alphacode.alphacodepaymentservice.dto.response.TokenRuleDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateTokenRule;
-import site.alphacode.alphacodepaymentservice.dto.resquest.patch.PatchTokenRule;
-import site.alphacode.alphacodepaymentservice.dto.resquest.update.UpdateTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.patch.PatchTokenRule;
+import site.alphacode.alphacodepaymentservice.dto.request.update.UpdateTokenRule;
 
 import java.util.UUID;
 

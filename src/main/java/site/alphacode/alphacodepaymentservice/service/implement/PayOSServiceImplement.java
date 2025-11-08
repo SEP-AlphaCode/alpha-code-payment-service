@@ -4,8 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.PayOSEmbeddedLinkRequest;
+import site.alphacode.alphacodepaymentservice.dto.request.create.PayOSEmbeddedLinkRequest;
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 import site.alphacode.alphacodepaymentservice.exception.ResourceNotFoundException;

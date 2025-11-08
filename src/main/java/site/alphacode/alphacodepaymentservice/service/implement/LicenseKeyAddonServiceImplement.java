@@ -6,7 +6,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyAddonDto;
-import site.alphacode.alphacodepaymentservice.dto.resquest.create.CreateLincenseKeyAddon;
+import site.alphacode.alphacodepaymentservice.dto.request.create.CreateLincenseKeyAddon;
 import site.alphacode.alphacodepaymentservice.entity.LicenseKeyAddon;
 import site.alphacode.alphacodepaymentservice.mapper.LicenseKeyAddonMapper;
 import site.alphacode.alphacodepaymentservice.repository.LicenseKeyAddonRepository;
