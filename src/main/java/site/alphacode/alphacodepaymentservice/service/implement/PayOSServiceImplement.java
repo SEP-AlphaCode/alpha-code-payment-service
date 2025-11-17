@@ -74,7 +74,7 @@ public class PayOSServiceImplement implements PayOSService {
                 .returnUrl(returnUrlPayment)
                 .cancelUrl(cancelUrlPayment)
                 .item(itemData)
-                .expiredAt(300)
+                .expiredAt(300) // Mặc định 5 phút
                 .build();
 
         return payOS.createPaymentLink(paymentData);
