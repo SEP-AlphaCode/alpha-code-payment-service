@@ -66,6 +66,9 @@ public class PayOSServiceImplement implements PayOSService {
                 .price(payOSEmbeddedLinkRequest.getPrice())
                 .build();
 
+        int durationSeconds = 5 * 60; // 5 phút
+        long expiredAt = System.currentTimeMillis() / 1000 + durationSeconds;
+
         PaymentData paymentData = PaymentData
                 .builder()
                 .orderCode(orderCode)
@@ -74,7 +77,7 @@ public class PayOSServiceImplement implements PayOSService {
                 .returnUrl(returnUrlPayment)
                 .cancelUrl(cancelUrlPayment)
                 .item(itemData)
-                .expiredAt(300) // Mặc định 5 phút
+                .expiredAt((int) expiredAt) // Mặc định 5 phút
                 .build();
 
         return payOS.createPaymentLink(paymentData);
