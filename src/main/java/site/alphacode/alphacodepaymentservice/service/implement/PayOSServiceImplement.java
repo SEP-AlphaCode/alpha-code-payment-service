@@ -74,6 +74,7 @@ public class PayOSServiceImplement implements PayOSService {
                 .returnUrl(returnUrlPayment)
                 .cancelUrl(cancelUrlPayment)
                 .item(itemData)
+                .expiredAt(300)
                 .build();
 
         return payOS.createPaymentLink(paymentData);
