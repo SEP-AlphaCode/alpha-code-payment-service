@@ -75,7 +75,8 @@ public class PaymentServiceImplement implements PaymentService {
                 serviceId = createPayment.getBundleId();
                 var bundleInfo = courseServiceClient.getBundleInformation(serviceId.toString());
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
-                amount = bundleInfo.getPrice() - bundleInfo.getDiscountPrice();
+                amount = bundleInfo.getDiscountPrice() != 0 ? bundleInfo.getDiscountPrice() :
+                         bundleInfo.getPrice();
                 break;
             case "license_key_addon":
                 category = 3;
