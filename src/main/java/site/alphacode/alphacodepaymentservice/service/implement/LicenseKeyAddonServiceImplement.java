@@ -55,12 +55,13 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     @Override
     @Transactional
     @CachePut(value = "license_key_addon", key = "{#id}")
-    public void activate(UUID id){
+    public boolean activate(UUID id){
         var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
         licenseKeyAddon.setStatus(1); // Active
         licenseKeyAddon.setLastUpdated(LocalDateTime.now());
         licenseKeyAddonRepository.save(licenseKeyAddon);
+        return true;
     }
 
     @Override

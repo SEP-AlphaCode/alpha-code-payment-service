@@ -9,7 +9,7 @@ public interface LicenseKeyAddonService {
     LicenseKeyAddonDto create(CreateLincenseKeyAddon createLincenseKeyAddon);
     boolean isActiveAddonForLicenseKey(UUID addonId, String key);
     LicenseKeyAddonDto getById(UUID id);
-    void activate(UUID id);
+    boolean activate(UUID id);
     boolean isActiveAddonForLicenseKey(Integer category, String key);
     boolean validateAddon(site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request);
 

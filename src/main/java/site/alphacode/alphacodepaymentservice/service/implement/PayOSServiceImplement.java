@@ -156,9 +156,9 @@ public class PayOSServiceImplement implements PayOSService {
                 log.info(licenseKey.getKey());
                 log.info(licenseKeyAddonInfo.getId().toString());
 
-                licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
+                var res = licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
 
-                paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
+                if(res) paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getPlanId() != null) {
                 log.info("Processing subscription plan purchase for payment id={}, planId={}", payment.getId(), payment.getPlanId());
                 var subscriptionInfo = subscriptionPlanRepository.findById(payment.getPlanId())
