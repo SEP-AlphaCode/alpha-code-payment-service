@@ -59,6 +59,7 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
         var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
         licenseKeyAddon.setStatus(1); // Active
+        licenseKeyAddon.setLastUpdated(LocalDateTime.now());
         licenseKeyAddon = licenseKeyAddonRepository.save(licenseKeyAddon);
         LicenseKeyAddonMapper.toDto(licenseKeyAddon);
     }

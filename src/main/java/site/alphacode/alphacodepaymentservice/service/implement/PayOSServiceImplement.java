@@ -2,6 +2,7 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.request.create.PayOSEmbeddedLinkRequest;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PayOSServiceImplement implements PayOSService {
     private final LicenseKeyService licenseKeyService;
     private final LicenseKeyAddonService licenseKeyAddonService;
@@ -132,36 +134,39 @@ public class PayOSServiceImplement implements PayOSService {
 
             // --- 2a. Xác định loại dịch vụ để gửi queue đúng ---
             if (payment.getCourseId() != null) {
+                log.info("Processing course purchase for payment id={}, courseId={}", payment.getId(), payment.getCourseId());
                 var courseInfo = courseServiceClient.getCourseInformation(payment.getCourseId().toString());
                 serviceName = courseInfo.getName().isEmpty() ? "Khóa học" : courseInfo.getName();
                 paymentProducer.sendCourseCreated(payment.getCourseId().toString(), payment.getAccountId().toString(), orderCode);
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getBundleId() != null) {
+                log.info("Processing bundle purchase for payment id={}, bundleId={}", payment.getId(), payment.getBundleId());
                 var bundleInfo = courseServiceClient.getBundleInformation(payment.getBundleId().toString());
                 serviceName = bundleInfo.getName().isEmpty() ? "Gói học" : bundleInfo.getName();
                 paymentProducer.sendBundleCreated(payment.getBundleId().toString(), payment.getAccountId().toString(), orderCode);
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getLicenseKeyAddonId() != null) {
+                log.info("Processing license key addon purchase for payment id={}, licenseKeyAddonId={}", payment.getId(), payment.getLicenseKeyAddonId());
                 var licenseKeyAddonInfo = licenseKeyAddonService.getById(payment.getLicenseKeyAddonId());
                 var addonInfo = addonRepository.findById(licenseKeyAddonInfo.getAddonId())
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy addon"));
                 serviceName = addonInfo.getName();
                 // Find license key by accountId
                 var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
-                if (licenseKey == null) {
-                    throw new RuntimeException("Không tìm thấy LicenseKey cho accountId: " + payment.getAccountId());
-                }
+                log.info(licenseKey.getKey());
 
                 licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
 
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getPlanId() != null) {
+                log.info("Processing subscription plan purchase for payment id={}, planId={}", payment.getId(), payment.getPlanId());
                 var subscriptionInfo = subscriptionPlanRepository.findById(payment.getPlanId())
                         .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy subscription plan"));
                 serviceName = subscriptionInfo.getName();
                 subscriptionService.createOrUpdateSubscription(payment.getAccountId(), payment.getPlanId());
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getLicenseKeyId() != null) {
+                log.info("Processing license key purchase for payment id={}, licenseKeyId={}", payment.getId(), payment.getLicenseKeyId());
                 licenseKeyService.activateLicense(payment.getLicenseKeyId());
                 paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), "Mua license key", payment.getAmount());
             }
