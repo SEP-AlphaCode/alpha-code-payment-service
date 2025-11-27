@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.UserSubscriptionDashboard;
 import site.alphacode.alphacodepaymentservice.entity.Subscription;
@@ -25,7 +26,10 @@ public class SubsriptionServiceImplement implements SubscriptionService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "user_subscription_dashboard", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "user_subscription_dashboard", allEntries = true),
+            @CacheEvict(value = "quota", key = "#accountId")
+    })
     public void createOrUpdateSubscription(UUID accountId, UUID planId) {
         SubscriptionPlan plan = subscriptionPlanRepository.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan not found"));
