@@ -2,6 +2,7 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     private final LicenseKeyAddonRepository licenseKeyAddonRepository;
     private final LicenseKeyRepository licenseKeyRepository;
@@ -58,9 +60,12 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
     public boolean activate(UUID id){
         var licenseKeyAddon = licenseKeyAddonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy LicenseKeyAddon với id: " + id));
+        log.info("Activating LicenseKeyAddon id={}", id);
         licenseKeyAddon.setStatus(1); // Active
         licenseKeyAddon.setLastUpdated(LocalDateTime.now());
         licenseKeyAddonRepository.save(licenseKeyAddon);
+        log.info("LicenseKeyAddon id={}", id);
+        log.info("LicenseKeyAddon status={}", licenseKeyAddon.getStatus());
         return true;
     }
 

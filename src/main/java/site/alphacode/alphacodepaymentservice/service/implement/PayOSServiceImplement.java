@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import site.alphacode.alphacodepaymentservice.dto.request.create.PayOSEmbeddedLinkRequest;
 
 import site.alphacode.alphacodepaymentservice.entity.Payment;
@@ -157,6 +158,8 @@ public class PayOSServiceImplement implements PayOSService {
                 log.info(licenseKeyAddonInfo.getId().toString());
 
                 var res = licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
+
+                log.info(String.valueOf(res));
 
                 if(res) paymentProducer.sendNotification(payment.getAccountId().toString(), payment.getOrderCode(), serviceName, payment.getAmount());
             } else if (payment.getPlanId() != null) {
