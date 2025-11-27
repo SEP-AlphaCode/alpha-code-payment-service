@@ -154,6 +154,7 @@ public class PayOSServiceImplement implements PayOSService {
                 // Find license key by accountId
                 var licenseKey = licenseKeyService.getLicenseByAccountId(payment.getAccountId());
                 log.info(licenseKey.getKey());
+                log.info(licenseKeyAddonInfo.getId().toString());
 
                 licenseKeyAddonService.activate(licenseKeyAddonInfo.getId());
 
