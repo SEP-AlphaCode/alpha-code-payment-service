@@ -16,6 +16,9 @@ public interface LicenseKeyService {
     // Validate key: trả về trạng thái dạng string
     boolean validateLicense(String key, UUID accountId);
 
+    // Validate key with cookie support
+    boolean validateLicenseKey(String accessToken, String key, UUID accountId);
+
     // Vô hiệu hóa key
     void deactivateLicense(String key);
     void activateLicense(UUID id);

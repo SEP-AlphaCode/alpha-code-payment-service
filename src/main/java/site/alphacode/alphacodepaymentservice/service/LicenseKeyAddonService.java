@@ -12,5 +12,5 @@ public interface LicenseKeyAddonService {
     boolean activate(UUID id);
     boolean isActiveAddonForLicenseKey(Integer category, String key);
     boolean validateAddon(site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request);
-
+    boolean validateAddon(String accessToken, String key, UUID accountId, Integer category);
 }

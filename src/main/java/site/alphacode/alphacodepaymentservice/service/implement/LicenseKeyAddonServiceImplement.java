@@ -1,5 +1,7 @@
 package site.alphacode.alphacodepaymentservice.service.implement;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,9 @@ import site.alphacode.alphacodepaymentservice.repository.LicenseKeyRepository;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyAddonService;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -88,5 +92,65 @@ public class LicenseKeyAddonServiceImplement implements LicenseKeyAddonService {
         return isActiveAddonForLicenseKey(request.getCategory(), request.getKey());
     }
 
+    @Override
+    public boolean validateAddon(String accessToken, String key, UUID accountId, Integer category) {
+        // Extract accountId from token if provided
+        UUID finalAccountId = accountId;
+        if (accessToken != null && !accessToken.isEmpty()) {
+            String accountIdFromToken = extractAccountIdFromToken(accessToken);
+            if (accountIdFromToken != null) {
+                finalAccountId = UUID.fromString(accountIdFromToken);
+            }
+        }
 
+        // Validate required parameters
+        if (key == null || finalAccountId == null || category == null) {
+            return false;
+        }
+
+        // 1) Check license key valid + đúng account
+        var result = licenseKeyService.validateLicense(key, finalAccountId);
+        if (!result) {
+            return false;
+        }
+
+        // 2) Check addon by category
+        return isActiveAddonForLicenseKey(category, key);
+    }
+
+    /**
+     * Helper method to extract accountId from JWT token (field "id")
+     */
+    private String extractAccountIdFromToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Remove "Bearer " prefix if present
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            // Split token and decode payload
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) {
+                return null;
+            }
+
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(payload);
+
+            // Extract "id" field from token
+            if (node.has("id")) {
+                return node.get("id").asText();
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.error("Failed to extract accountId from token", e);
+            return null;
+        }
+    }
 }

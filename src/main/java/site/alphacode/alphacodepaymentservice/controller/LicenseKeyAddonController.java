@@ -25,8 +25,18 @@ public class LicenseKeyAddonController {
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<Boolean> validateAddon(@RequestBody site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request) {
-        boolean allowed = licenseKeyAddonService.validateAddon(request);
-        return ResponseEntity.ok(allowed);
+    @Operation(summary = "Validate addon for license key")
+    public ResponseEntity<Boolean> validateAddon(
+            @CookieValue(name = "accessToken", required = false) String accessToken,
+            @CookieValue(name = "addonKey", required = false) String addonKeyCookie,
+            @RequestBody(required = false) site.alphacode.alphacodepaymentservice.dto.request.ValidateAddonRequest request
+    ) {
+        // Priority: cookies > request body
+        String finalKey = (addonKeyCookie != null) ? addonKeyCookie : (request != null ? request.getKey() : null);
+        UUID accountId = (request != null) ? request.getAccountId() : null;
+        Integer category = (request != null) ? request.getCategory() : null;
+
+        boolean valid = licenseKeyAddonService.validateAddon(accessToken, finalKey, accountId, category);
+        return ResponseEntity.ok(valid);
     }
 }

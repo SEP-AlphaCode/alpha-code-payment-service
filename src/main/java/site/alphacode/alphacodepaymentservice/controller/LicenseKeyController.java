@@ -3,6 +3,7 @@ package site.alphacode.alphacodepaymentservice.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import site.alphacode.alphacodepaymentservice.dto.response.LicenseKeyDto;
@@ -39,8 +40,17 @@ public class LicenseKeyController {
 
     @GetMapping("validate-key")
     @Operation(summary = "Validate license key")
-    public boolean validateLicenseKey(@RequestParam String key, @RequestParam UUID accountId) {
-        return licenseKeyService.validateLicense(key, accountId);
+    public ResponseEntity<Boolean> validateLicenseKey(
+            @CookieValue(name = "accessToken", required = false) String accessToken,
+            @CookieValue(name = "licenseKey", required = false) String licenseKeyCookie,
+            @RequestParam(required = false) String key,
+            @RequestParam(required = false) UUID accountId
+    ) {
+        // Priority: cookie values over query params
+        String finalKey = (licenseKeyCookie != null) ? licenseKeyCookie : key;
+
+        boolean valid = licenseKeyService.validateLicenseKey(accessToken, finalKey, accountId);
+        return ResponseEntity.ok(valid);
     }
 
     @GetMapping("user-license-info/{accountId}")

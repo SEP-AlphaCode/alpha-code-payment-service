@@ -1,7 +1,10 @@
 package site.alphacode.alphacodepaymentservice.service.implement;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -15,11 +18,14 @@ import site.alphacode.alphacodepaymentservice.repository.LicenseKeyRepository;
 import site.alphacode.alphacodepaymentservice.service.KeyPriceService;
 import site.alphacode.alphacodepaymentservice.service.LicenseKeyService;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LicenseKeyServiceImplement implements LicenseKeyService {
 
     private final LicenseKeyRepository licenseKeyRepository;
@@ -52,13 +58,36 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
     }
 
     /**
-     * Validate license
+     * Validate license (backward compatible)
      */
     @Override
     public boolean validateLicense(String key, UUID accountId) {
         return licenseKeyRepository.findByKeyAndStatus(key, 1)
                 .map(license -> license.getAccountId().equals(accountId))
                 .orElse(false);
+    }
+
+    /**
+     * Validate license with cookie support
+     */
+    @Override
+    public boolean validateLicenseKey(String accessToken, String key, UUID accountId) {
+        // Extract accountId from token if provided
+        UUID finalAccountId = accountId;
+        if (accessToken != null && !accessToken.isEmpty()) {
+            String accountIdFromToken = extractAccountIdFromToken(accessToken);
+            if (accountIdFromToken != null) {
+                finalAccountId = UUID.fromString(accountIdFromToken);
+            }
+        }
+
+        // Validate required parameters
+        if (key == null || finalAccountId == null) {
+            return false;
+        }
+
+        // Use existing validation logic
+        return validateLicense(key, finalAccountId);
     }
 
     /**
@@ -125,6 +154,42 @@ public class LicenseKeyServiceImplement implements LicenseKeyService {
         licenseKeyInfo.setHasPurchased(true);
         licenseKeyInfo.setPurchaseDate(license.get().getPurchaseDate());
         return licenseKeyInfo;
+    }
+
+    /**
+     * Helper method to extract accountId from JWT token (field "id")
+     */
+    private String extractAccountIdFromToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Remove "Bearer " prefix if present
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            // Split token and decode payload
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) {
+                return null;
+            }
+
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(payload);
+
+            // Extract "id" field from token
+            if (node.has("id")) {
+                return node.get("id").asText();
+            }
+
+            return null;
+        } catch (Exception e) {
+            log.error("Failed to extract accountId from token", e);
+            return null;
+        }
     }
 }
 
