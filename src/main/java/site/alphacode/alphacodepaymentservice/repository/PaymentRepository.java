@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,4 +35,22 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             @Param("serviceId") UUID serviceId,
             @Param("status") Integer status
     );
+
+    @Query("""
+        SELECT COALESCE(SUM(p.amount), 0)
+        FROM Payment p
+        WHERE MONTH(p.createdDate) = :month
+          AND YEAR(p.createdDate) = :year
+    """)
+    Long sumRevenueByMonth(
+            @Param("month") int month,
+            @Param("year") int year
+    );
+
+    @Query("""
+   SELECT YEAR(p.createdDate), MONTH(p.createdDate), SUM(p.amount)
+   FROM Payment p
+   GROUP BY YEAR(p.createdDate), MONTH(p.createdDate)
+""")
+    List<Object[]> sumRevenueGroupByMonth();
 }

@@ -57,6 +57,7 @@ public class PayOSServiceImplement implements PayOSService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentProducer paymentProducer;
+    private final RevenueRedisServiceImpl revenueRedisService;
 
     @Override
     @Transactional
@@ -127,9 +128,25 @@ public class PayOSServiceImplement implements PayOSService {
         Payment payment = paymentRepository.findByOrderCode(orderCode)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Payment với orderCode: " + orderCode));
 
+        // record original status to ensure idempotent revenue increment
+        int originalStatus = payment.getStatus();
+
         // 2. Mapping trạng thái dựa vào data.code
         if ("00".equals(webhookData.getCode())) {
             payment.setStatus(2); // PAID
+
+            // Only increment Redis if we transition from a non-paid status to PAID
+            if (originalStatus != 2) {
+                LocalDateTime createdAt = payment.getCreatedDate();
+                int year = createdAt.getYear();
+                int month = createdAt.getMonthValue();
+
+                revenueRedisService.increaseRevenue(
+                        year,
+                        month,
+                        payment.getAmount() != null ? payment.getAmount().longValue() : 0L
+                );
+            }
 
             String serviceName;
 
