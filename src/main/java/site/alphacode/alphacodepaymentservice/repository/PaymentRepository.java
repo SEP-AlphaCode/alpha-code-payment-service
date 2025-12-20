@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import site.alphacode.alphacodepaymentservice.entity.Payment;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,20 +38,68 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     );
 
     @Query("""
-        SELECT COALESCE(SUM(p.amount), 0)
-        FROM Payment p
-        WHERE MONTH(p.createdDate) = :month
-          AND YEAR(p.createdDate) = :year
-    """)
-    Long sumRevenueByMonth(
-            @Param("month") int month,
-            @Param("year") int year
-    );
-
-    @Query("""
-   SELECT YEAR(p.createdDate), MONTH(p.createdDate), SUM(p.amount)
-   FROM Payment p
-   GROUP BY YEAR(p.createdDate), MONTH(p.createdDate)
+    SELECT 
+        YEAR(p.createdDate),
+        MONTH(p.createdDate),
+        SUM(p.amount)
+    FROM Payment p
+    WHERE p.status = 2
+    GROUP BY YEAR(p.createdDate), MONTH(p.createdDate)
 """)
     List<Object[]> sumRevenueGroupByMonth();
+
+
+    @Query("""
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM Payment p
+    WHERE YEAR(p.createdDate) = :year
+""")
+    long sumRevenueByYear(int year);
+
+    @Query("""
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM Payment p
+    WHERE YEAR(p.createdDate) = :year
+      AND MONTH(p.createdDate) = :month
+""")
+    long sumRevenueByMonth(int year, int month);
+
+    @Query("""
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM Payment p
+    WHERE YEAR(p.createdDate) = :year
+      AND MONTH(p.createdDate) = :month
+      AND DAY(p.createdDate) = :day
+""")
+    long sumRevenueByDay(int year, int month, int day);
+
+    @Query("""
+    SELECT p.category, COUNT(p.id)
+    FROM Payment p
+    WHERE p.status = 2
+      AND YEAR(p.createdDate) = :year
+    GROUP BY p.category
+""")
+    List<Object[]> countByCategoryYear(int year);
+
+    @Query("""
+    SELECT p.category, COUNT(p.id)
+    FROM Payment p
+    WHERE p.status = 2
+      AND YEAR(p.createdDate) = :year
+      AND MONTH(p.createdDate) = :month
+    GROUP BY p.category
+""")
+    List<Object[]> countByCategoryMonth(int year, int month);
+
+    @Query("""
+    SELECT p.category, COUNT(p.id)
+    FROM Payment p
+    WHERE p.status = 2
+      AND DATE(p.createdDate) = :date
+    GROUP BY p.category
+""")
+    List<Object[]> countByCategoryDay(LocalDate date);
+
+
 }

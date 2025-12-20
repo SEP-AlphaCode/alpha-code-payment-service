@@ -1,7 +1,9 @@
 package site.alphacode.alphacodepaymentservice.service;
 
-import site.alphacode.alphacodepaymentservice.dto.response.Revenue;
+import site.alphacode.alphacodepaymentservice.dto.response.DashboardRevenueResponse;
+import site.alphacode.alphacodepaymentservice.dto.response.RevenueDto;
 
 public interface DashboardService {
-    public Revenue getRevenueByMonth(int month, int year);
+    RevenueDto getRevenue(int year, Integer month, Integer day);
+    DashboardRevenueResponse getDashboardRevenue(int year, Integer month, Integer day);
 }

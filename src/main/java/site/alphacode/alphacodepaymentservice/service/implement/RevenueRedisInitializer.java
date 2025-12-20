@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -19,22 +21,38 @@ public class RevenueRedisInitializer {
     @Value("${revenue.redis.ttl.seconds:3600}")
     private int revenueTtlSeconds;
 
-
     @PostConstruct
     public void syncRevenue() {
 
-        List<Object[]> results =
-                paymentRepository.sumRevenueGroupByMonth();
-
+        List<Object[]> results = paymentRepository.sumRevenueGroupByMonth();
         Duration ttl = Duration.ofSeconds(revenueTtlSeconds);
 
-        for (Object[] row : results) {
-            int year = (int) row[0];
-            int month = (int) row[1];
-            Long total = (Long) row[2];
+        /*
+         * Map to accumulate yearly revenue
+         * key = year, value = total
+         */
+        Map<Integer, Long> yearlyRevenue = new HashMap<>();
 
-            // write absolute value into Redis and set TTL so keys expire if service dies
-            revenueRedisService.setRevenueWithTTL(year, month, total != null ? total : 0L, ttl);
+        for (Object[] row : results) {
+            int year = ((Number) row[0]).intValue();
+            int month = ((Number) row[1]).intValue();
+            long total = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+            // SET month revenue (ABSOLUTE)
+            revenueRedisService.setRevenueWithTTL(year, month, total, ttl);
+
+            // accumulate year revenue
+            yearlyRevenue.merge(year, total, Long::sum);
+        }
+
+        // SET year revenue
+        for (var entry : yearlyRevenue.entrySet()) {
+            revenueRedisService.setRevenueWithTTL(
+                    entry.getKey(),
+                    0, // month = 0 means YEAR
+                    entry.getValue(),
+                    ttl
+            );
         }
     }
 }

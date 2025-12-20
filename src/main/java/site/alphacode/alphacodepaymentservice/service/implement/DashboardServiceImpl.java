@@ -2,55 +2,135 @@ package site.alphacode.alphacodepaymentservice.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import site.alphacode.alphacodepaymentservice.dto.response.Revenue;
+import site.alphacode.alphacodepaymentservice.dto.response.CategoryRevenueDto;
+import site.alphacode.alphacodepaymentservice.dto.response.DashboardRevenueResponse;
+import site.alphacode.alphacodepaymentservice.dto.response.RevenueDto;
+import site.alphacode.alphacodepaymentservice.enums.PaymentCategoryEnum;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.service.DashboardService;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
+
     private final RevenueRedisServiceImpl revenueRedisService;
     private final PaymentRepository paymentRepository;
 
     @Override
-    public Revenue getRevenueByMonth(int month, int year) {
+    public RevenueDto getRevenue(int year, Integer month, Integer day) {
 
-        Long currentRevenue =
-                revenueRedisService.getRevenue(year, month);
+        validateParams(month, day);
 
-        // fallback nếu redis chưa có
-        if (currentRevenue == 0) {
-            currentRevenue =
-                    paymentRepository.sumRevenueByMonth(month, year);
+        long current;
+        long previous;
+
+        if (day != null) {
+            // DAY
+            current = getRevenueFromRedisOrDb(year, month, day);
+            LocalDate prev = LocalDate.of(year, month, day).minusDays(1);
+            previous = getRevenueFromRedisOrDb(prev.getYear(), prev.getMonthValue(), prev.getDayOfMonth());
+
+        } else if (month != null) {
+            // MONTH
+            current = getRevenueFromRedisOrDb(year, month);
+            YearMonth prev = YearMonth.of(year, month).minusMonths(1);
+            previous = getRevenueFromRedisOrDb(prev.getYear(), prev.getMonthValue());
+
+        } else {
+            // YEAR
+            current = getRevenueFromRedisOrDb(year);
+            previous = getRevenueFromRedisOrDb(year - 1);
         }
 
-        int prevMonth = month - 1;
-        int prevYear = year;
-        if (prevMonth == 0) {
-            prevMonth = 12;
-            prevYear--;
+        return RevenueDto.of(current, previous);
+    }
+
+    private void validateParams(Integer month, Integer day) {
+        if (day != null && month == null) {
+            throw new IllegalArgumentException("month is required when day is provided");
         }
+    }
 
-        Long previousRevenue =
-                revenueRedisService.getRevenue(prevYear, prevMonth);
+    /* ================= REDIS → DB FALLBACK ================= */
 
-        if (previousRevenue == 0) {
-            previousRevenue =
-                    paymentRepository.sumRevenueByMonth(prevMonth, prevYear);
-        }
+    private long getRevenueFromRedisOrDb(int year) {
+        Long redis = revenueRedisService.getRevenue(year, 0);
+        if (redis != null && redis > 0) return redis;
 
-        double growth = 0;
-        if (previousRevenue > 0) {
-            growth = ((double) (currentRevenue - previousRevenue)
-                    / previousRevenue) * 100;
-        }
+        long db = paymentRepository.sumRevenueByYear(year);
+        revenueRedisService.setRevenue(year, 0, db);
+        return db;
+    }
 
-        return Revenue.builder()
-                .month(month)
-                .year(year)
-                .currentRevenue(currentRevenue)
-                .previousRevenue(previousRevenue)
-                .growthPercent(Math.round(growth * 100.0) / 100.0)
+    private long getRevenueFromRedisOrDb(int year, int month) {
+        Long redis = revenueRedisService.getRevenue(year, month);
+        if (redis != null && redis > 0) return redis;
+
+        long db = paymentRepository.sumRevenueByMonth(year, month);
+        revenueRedisService.setRevenue(year, month, db);
+        return db;
+    }
+
+    private long getRevenueFromRedisOrDb(int year, int month, int day) {
+        Long redis = revenueRedisService.getRevenue(year, month * 100 + day);
+        if (redis != null && redis > 0) return redis;
+
+        long db = paymentRepository.sumRevenueByDay(year, month, day);
+        revenueRedisService.setRevenue(year, month * 100 + day, db);
+        return db;
+    }
+
+    @Override
+    public DashboardRevenueResponse getDashboardRevenue(int year, Integer month, Integer day) {
+
+        RevenueDto revenue = getRevenue(year, month, day);
+
+        List<CategoryRevenueDto> categories =
+                getCategoryCount(year, month, day);
+
+        return DashboardRevenueResponse.builder()
+                .payment(revenue)
+                .category(categories)
                 .build();
     }
+
+    private List<CategoryRevenueDto> getCategoryCount(
+            int year, Integer month, Integer day
+    ) {
+
+        List<Object[]> raw;
+
+        if (day != null) {
+            validateParams(month, day);
+            LocalDate date = LocalDate.of(year, month, day);
+            raw = paymentRepository.countByCategoryDay(date);
+
+        } else if (month != null) {
+            raw = paymentRepository.countByCategoryMonth(year, month);
+
+        } else {
+            raw = paymentRepository.countByCategoryYear(year);
+        }
+
+        return raw.stream()
+                .map(r -> {
+                    int cateId = (int) r[0];
+                    long count = (long) r[1];
+
+                    return CategoryRevenueDto.builder()
+                            .categoryId(cateId)
+                            .categoryName(
+                                    PaymentCategoryEnum.fromCode(cateId)
+                            )
+                            .amount(count)
+                            .build();
+                })
+                .toList();
+    }
+
+
 }
