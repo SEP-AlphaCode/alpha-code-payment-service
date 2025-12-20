@@ -1,6 +1,7 @@
 package site.alphacode.alphacodepaymentservice.service.implement;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import site.alphacode.alphacodepaymentservice.dto.response.CategoryRevenueDto;
 import site.alphacode.alphacodepaymentservice.dto.response.DashboardRevenueResponse;
@@ -9,6 +10,7 @@ import site.alphacode.alphacodepaymentservice.enums.PaymentCategoryEnum;
 import site.alphacode.alphacodepaymentservice.repository.PaymentRepository;
 import site.alphacode.alphacodepaymentservice.service.DashboardService;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -19,6 +21,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final RevenueRedisServiceImpl revenueRedisService;
     private final PaymentRepository paymentRepository;
+    private final int revenueTtlSeconds = 60;
+    private final Duration ttl = Duration.ofSeconds(revenueTtlSeconds);
 
     @Override
     public RevenueDto getRevenue(int year, Integer month, Integer day) {
@@ -62,7 +66,7 @@ public class DashboardServiceImpl implements DashboardService {
         if (redis != null && redis > 0) return redis;
 
         long db = paymentRepository.sumRevenueByYear(year);
-        revenueRedisService.setRevenue(year, 0, db);
+        revenueRedisService.setRevenueWithTTL(year, 0, db, ttl);
         return db;
     }
 
@@ -71,7 +75,7 @@ public class DashboardServiceImpl implements DashboardService {
         if (redis != null && redis > 0) return redis;
 
         long db = paymentRepository.sumRevenueByMonth(year, month);
-        revenueRedisService.setRevenue(year, month, db);
+        revenueRedisService.setRevenueWithTTL(year, month, db, ttl);
         return db;
     }
 
@@ -80,7 +84,8 @@ public class DashboardServiceImpl implements DashboardService {
         if (redis != null && redis > 0) return redis;
 
         long db = paymentRepository.sumRevenueByDay(year, month, day);
-        revenueRedisService.setRevenue(year, month * 100 + day, db);
+//        revenueRedisService.setRevenue(year, month * 100 + day, db);
+        revenueRedisService.setRevenueWithTTL(year, month * 100 + day, db, ttl);
         return db;
     }
 
